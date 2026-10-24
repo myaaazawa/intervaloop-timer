@@ -101,10 +101,18 @@
     font-variant-numeric: tabular-nums;
   }
   .hms span { font-size: 12px; color: var(--sub); margin-right: 4px; }
-  /* スマホ幅：入力欄を少し細くして、項目名が1行に収まるようにする */
+  /* 念のため：項目名が長くて入りきらないときは、数字の欄ではなく項目名の文字を「…」で詰める
+     （iPhone の日本語の文字は幅が広く、「インターバル ⓘ」の行で「秒」が枠からはみ出していたため） */
+  .row > .label { min-width: 0; }
+  .row > .label > [data-i18n] { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+  .row > .label > .dot, .row > .label > .info, .row > .hms { flex: 0 0 auto; }
+  /* スマホ幅：入力欄・すき間・余白を少しずつ詰めて、1行に収まるようにする */
   @media (max-width: 420px) {
-    .hms input, .num { width: 42px; font-size: 15px; }
-    .hms span { margin-right: 2px; }
+    .panel { padding: 14px; }
+    .label { gap: 6px; }
+    .hms { gap: 2px; }
+    .hms input, .num { width: 38px; font-size: 15px; }
+    .hms span { margin-right: 1px; }
   }
   /* さらに狭い画面：余白と入力欄を詰める。それでも入らなければ折り返す */
   @media (max-width: 360px) {
@@ -113,6 +121,7 @@
     .hms input, .num { width: 36px; }
     .volume input { width: 72px; }
     .row { flex-wrap: wrap; row-gap: 6px; }
+    .row > .label { min-width: auto; }   /* ここでは「…」で詰めずに、2行に折り返す */
     .row > .hms, .row > .volume { margin-left: auto; }
   }
   .hint { font-size: 12px; color: var(--sub); }
