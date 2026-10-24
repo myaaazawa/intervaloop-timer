@@ -31,6 +31,7 @@
     margin: 0; min-height: 100vh; background: var(--bg); color: var(--text);
     font-family: "Segoe UI", "Yu Gothic UI", "Meiryo", sans-serif;
     display: flex; justify-content: center; padding: 24px 16px;
+    overflow-x: hidden;   /* 念のため：どこかが少しはみ出しても、ページが横にスライドしないようにする */
   }
   .app { width: 100%; max-width: 440px; display: flex; flex-direction: column; gap: 18px; }
 
@@ -129,18 +130,21 @@
           width: 17px; height: 17px; border: 1px solid var(--sub); border-radius: 50%; color: var(--sub);
           font-size: 11px; font-weight: 600; font-style: normal; cursor: help; outline: none; }
   .info:hover, .info:focus-visible { color: var(--text); border-color: var(--text); }
-  .info .tip { position: absolute; bottom: calc(100% + 8px); left: 50%; transform: translateX(-70%); width: 250px;
+  /* 吹き出しは、見えないときは場所も取らない（スマホで横にはみ出してスライドしないように）。
+     開いたときに画面からはみ出す分は、JS で --dx だけずらす */
+  .info .tip { position: absolute; bottom: calc(100% + 8px); left: 50%; transform: translateX(-70%);
+               translate: var(--dx, 0px) 0; width: min(250px, calc(100vw - 24px));
                background: var(--btn); color: var(--btn-text); font-size: 12px; font-weight: 400; line-height: 1.55;
                padding: 8px 11px; border-radius: 8px; box-shadow: 0 4px 14px rgba(0,0,0,.25);
                white-space: normal;   /* 項目名の「折り返さない」設定を引き継がず、枠の中で折り返す */
-               opacity: 0; visibility: hidden; transition: opacity .12s; pointer-events: none; z-index: 5; }
-  .info .tip::after { content: ''; position: absolute; top: 100%; left: 70%; border: 6px solid transparent;
+               display: none; pointer-events: none; z-index: 5; }
+  .info .tip::after { content: ''; position: absolute; top: 100%; left: calc(70% - var(--dx, 0px)); border: 6px solid transparent;
                       border-top-color: var(--btn); transform: translateX(-50%); }
-  /* スマホでは、タップして選ぶと吹き出しが出る */
-  .info:hover .tip, .info:focus .tip { opacity: 1; visibility: visible; }
-  /* 左寄りの項目では、吹き出しを右向きに開いて、画面の外にはみ出さないようにする */
+  /* マウスを乗せる・タップして選ぶと、JS が位置を決めてから show を付けて出す */
+  .info.show .tip { display: block; }
+  /* 左寄りの項目では、吹き出しを右向きに開く */
   .info.open-right .tip { transform: translateX(-15%); }
-  .info.open-right .tip::after { left: 15%; }
+  .info.open-right .tip::after { left: calc(15% - var(--dx, 0px)); }
   .label .info { margin-left: 2px; }
   .volume select {
     font: inherit; font-size: 13px; color: var(--text); background: var(--panel);
@@ -157,7 +161,15 @@
   .chip button { background: none; border: none; color: inherit; font: inherit; cursor: pointer; padding: 4px 4px 4px 10px; }
   .chip button.del { padding: 4px 8px 4px 4px; opacity: .6; }
   .chip button:hover { color: var(--text); opacity: 1; }
-  .panel.locked .favs { opacity: .5; pointer-events: none; }
+  /* 計測中は、呼び出しのボタンだけ押せない（登録と削除はできる） */
+  .chip button:disabled { opacity: .45; cursor: default; }
+  .fav-form { display: inline-flex; align-items: center; gap: 4px; flex-wrap: wrap; }
+  .chip-ask { color: var(--text); }
+  .chip-ask .ask-text { padding: 4px 4px 4px 10px; }
+  .chip .ask-yes { color: #e5534b; font-weight: 600; }
+  .fav-note { font-size: 12px; color: #e5534b; }
+  .fav-form input { font: inherit; font-size: 13px; width: 170px; max-width: 100%; padding: 4px 8px;
+                    border: 1px solid var(--line); border-radius: 8px; background: var(--bg); color: var(--text); }
 
   /* 色の設定 */
   details { font-size: 13px; color: var(--sub); }
@@ -169,6 +181,12 @@
     border: 1px solid var(--line); border-radius: 6px; padding: 2px 4px; cursor: pointer;
   }
   .colors input[type=color] { width: 32px; height: 24px; border: 1px solid var(--line); border-radius: 6px; padding: 0; background: none; cursor: pointer; }
+  .colors label { cursor: pointer; }
+  /* 指で操作する端末（スマホ・タブレット）では、色のボタンを押しやすい大きさにする */
+  @media (pointer: coarse) {
+    .colors input[type=color] { width: 44px; height: 44px; border-radius: 10px; }
+    .colors label { min-height: 44px; }
+  }
 
   /* 下部（キー操作・言語） */
   .footer { display: flex; justify-content: space-between; align-items: center; margin-top: -8px; }
@@ -397,6 +415,7 @@ const I18N = {
     needWork: 'ワークタイムを1秒以上に設定してください。',
     timePanel: '時間の設定', soundPanel: '音の設定',
     favAdd: '＋ 時間と回数をお気に入りに', favName: 'お気に入りの名前', favDel: '削除',
+    favSave: '登録', favCancel: 'キャンセル', favDelYes: '削除', favDelNo: 'やめる',
     favDelAsk: '「{name}」を削除しますか？',
     favTip: 'ワークタイム {work} / インターバル {rest} / {repeat}回',
     dur: (h, m, s) => (h ? h + '時間' : '') + (m ? m + '分' : '') + (s || (!h && !m) ? s + '秒' : ''),
@@ -442,6 +461,7 @@ const I18N = {
     needWork: 'Please set the work time to at least 1 second.',
     timePanel: 'Time', soundPanel: 'Sound',
     favAdd: '+ Save time & repeat', favName: 'Name for this favorite', favDel: 'Delete',
+    favSave: 'Save', favCancel: 'Cancel', favDelYes: 'Delete', favDelNo: 'Keep',
     favDelAsk: 'Delete "{name}"?',
     favTip: 'Work time {work} / Interval {rest} / {repeat} times',
     dur: (h, m, s) => (h ? h + 'h' : '') + (m ? m + 'm' : '') + (s || (!h && !m) ? s + 's' : ''),
@@ -574,6 +594,12 @@ function updateFavicon() {
 }
 document.querySelectorAll('[data-color]').forEach(inp => {
   inp.addEventListener('input', () => { settings.colors[inp.dataset.color] = inp.value; applyColors(); save(); });
+  // iPhone・iPad の Safari は、横の文字をタップしても色の選択画面を開かないことがあるので、自分で開く
+  inp.closest('label').addEventListener('click', e => {
+    if (e.target === inp) return;
+    e.preventDefault();
+    inp.click();
+  });
 });
 $('colorReset').onclick = () => { settings.colors = { ...defaultColors }; applyColors(); save(); };
 applyColors();
@@ -603,25 +629,79 @@ function renderFavs() {
     load.onclick = () => loadFav(i);
     const del = document.createElement('button');
     del.className = 'del'; del.textContent = '×'; del.title = t('favDel');
-    del.onclick = () => {
-      if (!confirm(t('favDelAsk', { name: f.name }))) return;
+    del.onclick = () => askDelete(chip, f.name, () => {
       settings.favorites.splice(i, 1); save(); renderFavs();
-    };
+    });
     chip.append(load, del);
     box.append(chip);
   });
   const add = document.createElement('button');
   add.className = 'ghost'; add.textContent = t('favAdd');
   add.onclick = () => {
-    if (settings.favorites.length >= MAX_FAVS) { alert(t('favFull')); return; }
+    if (settings.favorites.length >= MAX_FAVS) { favNote(add, t('favFull')); return; }
     readSettings();
-    const def = `${short(settings.work)}/${short(settings.rest)}×${settings.repeat || '∞'}`;
-    const name = prompt(t('favName'), def);
-    if (name === null) return;
-    settings.favorites.push({ name: name.trim() || def, work: settings.work, rest: settings.rest, repeat: settings.repeat });
-    save(); renderFavs();
+    const { work, rest, repeat } = settings;
+    const def = `${short(work)}/${short(rest)}×${repeat || '∞'}`;
+    openFavForm(add, def, name => {
+      settings.favorites.push({ name, work, rest, repeat });
+      save(); renderFavs();
+    });
   };
   box.append(add);
+  lockFavs();
+}
+// 名前の入力欄をページの中に出す（ブラウザの入力ダイアログはページの動きを止めてしまい、
+// 計測中だと区切りの音が鳴らなくなるため）
+function openFavForm(add, def, onSave) {
+  const form = document.createElement('span');
+  form.className = 'fav-form';
+  const inp = document.createElement('input');
+  inp.type = 'text'; inp.value = def; inp.maxLength = 40;
+  inp.placeholder = t('favName'); inp.setAttribute('aria-label', t('favName'));
+  const ok = document.createElement('button');
+  ok.type = 'button'; ok.className = 'ghost'; ok.textContent = t('favSave');
+  const cancel = document.createElement('button');
+  cancel.type = 'button'; cancel.className = 'ghost'; cancel.textContent = t('favCancel');
+  const done = keep => keep ? onSave(inp.value.trim() || def) : renderFavs();
+  ok.onclick = () => done(true);
+  cancel.onclick = () => done(false);
+  inp.onkeydown = e => {
+    if (e.key === 'Enter') { e.preventDefault(); done(true); }
+    else if (e.key === 'Escape') { e.preventDefault(); done(false); }
+  };
+  form.append(inp, ok, cancel);
+  add.replaceWith(form);
+  inp.focus(); inp.select();
+}
+// 削除の確認も、ページの中で行う（ブラウザの確認ダイアログは、計測中のタイマーを止めてしまうため）。
+// しばらく押さなければ、元の表示に戻す
+function askDelete(chip, name, onYes) {
+  const ask = document.createElement('span');
+  ask.className = 'chip chip-ask';
+  const msg = document.createElement('span');
+  msg.className = 'ask-text'; msg.textContent = t('favDelAsk', { name });
+  const yes = document.createElement('button');
+  yes.type = 'button'; yes.className = 'ask-yes'; yes.textContent = t('favDelYes');
+  const no = document.createElement('button');
+  no.type = 'button'; no.textContent = t('favDelNo');
+  const timer = setTimeout(() => renderFavs(), 6000);
+  yes.onclick = () => { clearTimeout(timer); onYes(); };
+  no.onclick = () => { clearTimeout(timer); renderFavs(); };
+  ask.append(msg, yes, no);
+  chip.replaceWith(ask);
+  no.focus();
+}
+// 短いお知らせを、ボタンの横に数秒だけ出す（ブラウザのダイアログの代わり）
+function favNote(after, text) {
+  document.querySelector('#favs .fav-note')?.remove();
+  const note = document.createElement('span');
+  note.className = 'fav-note'; note.textContent = text; note.setAttribute('role', 'status');
+  after.after(note);
+  setTimeout(() => note.remove(), 3000);
+}
+// 計測中は、お気に入りの呼び出しだけできないようにする
+function lockFavs() {
+  document.querySelectorAll('#favs .chip:not(.chip-ask) button:not(.del)').forEach(b => b.disabled = active());
 }
 function loadFav(i) {
   const f = settings.favorites[i];
@@ -821,6 +901,9 @@ function render() {
   $('startBtn').textContent = t(state === 'paused' ? 'resume' : 'start');
   $('pauseBtn').disabled = state !== 'running';
   $('panel').classList.toggle('locked', active());
+  // 計測中は、ワークタイム・インターバル・回数・カウントダウンを変えられないようにする
+  $('panel').querySelectorAll('.hms input').forEach(inp => inp.disabled = active());
+  lockFavs();
   $('subControls').classList.toggle('hidden', !active());
   ring.classList.toggle('active', active());
   updateLogo(elapsed);
@@ -1017,6 +1100,38 @@ $('fsExit').onclick = toggleFullscreen;
 if (!document.fullscreenEnabled) $('fsBtn').hidden = true;
 
 // ---- キー操作 ----
+// ⓘ の吹き出し：出す前に、画面の端からはみ出さない位置（--dx）を計算してから出す。
+// 先に出すと、はみ出した分だけページが一瞬広がり、正しい画面の幅が測れないため
+function showTip(info) {
+  const tip = info.querySelector('.tip');
+  if (!tip) return;
+  const W = document.documentElement.clientWidth, m = 8;
+  const w = Math.min(250, W - 24);                       // CSS の width と同じ
+  const ir = info.getBoundingClientRect();
+  const left = ir.left + ir.width / 2 - w * (info.classList.contains('open-right') ? 0.15 : 0.7);
+  let dx = 0;
+  if (left + w > W - m) dx = W - m - (left + w);
+  if (left + dx < m) dx = m - left;
+  tip.style.setProperty('--dx', dx + 'px');
+  info.classList.add('show');
+}
+function hideTip(info) {
+  if (info.matches(':hover') || info === document.activeElement) return;
+  info.classList.remove('show');
+}
+['mouseover', 'focusin'].forEach(type => document.addEventListener(type, e => {
+  const info = e.target.closest?.('.info');
+  if (info) showTip(info);
+}));
+document.addEventListener('mouseout', e => {
+  const info = e.target.closest?.('.info');
+  if (info && !info.contains(e.relatedTarget)) hideTip(info);
+});
+document.addEventListener('focusout', e => {
+  const info = e.target.closest?.('.info');
+  if (info) setTimeout(() => hideTip(info));
+});
+
 // 一時停止中などは再描画が止まるので、スクロールや画面サイズの変更でロゴを更新する
 let logoFrame = 0;
 const refreshLogo = () => {
