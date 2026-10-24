@@ -748,7 +748,7 @@ function askDelete(chip, name, onYes) {
   const timer = setTimeout(() => renderFavs(), 6000);
   yes.onclick = () => { clearTimeout(timer); onYes(); };
   no.onclick = () => { clearTimeout(timer); renderFavs(); };
-  ask.append(msg, yes, no);
+  ask.append(msg, no, yes);
   chip.replaceWith(ask);
   no.focus();
 }
