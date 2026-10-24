@@ -1,4 +1,9 @@
-# IntervaLoop Timer
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="logo/IntervaLoop_logo_dark_timer.png">
+    <img src="logo/IntervaLoop_logo_light_timer.png" alt="IntervaLoop Timer" width="360">
+  </picture>
+</p>
 
 [日本語](#日本語) | [English](#english)
 
@@ -13,8 +18,6 @@
 **アプリを開く：** https://myaaazawa.github.io/intervaloop-timer/
 
 ### 画面
-
-<img src="screenshots/timer-pc-dark.png" alt="パソコンの画面（ダーク）" width="640">
 
 <img src="screenshots/timer-phone-light.png" alt="スマートフォンの画面（ライト）" width="260"> <img src="screenshots/timer-phone-dark.png" alt="スマートフォンの画面（ダーク）" width="260">
 
@@ -90,8 +93,6 @@ No installation or sign-up needed.
 **Open the app:** https://myaaazawa.github.io/intervaloop-timer/
 
 ### Screenshots
-
-<img src="screenshots/timer-pc-dark.png" alt="Computer screen (dark)" width="640">
 
 <img src="screenshots/timer-phone-light.png" alt="Smartphone screen (light)" width="260"> <img src="screenshots/timer-phone-dark.png" alt="Smartphone screen (dark)" width="260">
 
