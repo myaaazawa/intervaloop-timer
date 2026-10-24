@@ -2,6 +2,8 @@
 <html lang="ja">
 <head>
 <meta charset="utf-8">
+<!-- 安全設定：外部のプログラムやスタイルは読み込まない。画像だけは、URLで追加できるよう外部も許可する -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src * data: blob:; media-src data: blob:; connect-src data: blob:; font-src data:; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>IntervaLoop Timer</title>
 <link rel="icon" id="favicon" type="image/svg+xml" href="data:,">
@@ -524,7 +526,7 @@ const I18N = {
   },
 };
 let lang = settings.lang || ((navigator.language || '').toLowerCase().startsWith('ja') ? 'ja' : 'en');
-if (!I18N[lang]) lang = 'en';
+if (!Object.hasOwn(I18N, lang)) lang = 'en';   // 表にない言語（変な値を含む）は英語にする
 const t = (key, params = {}) =>
   String(I18N[lang][key] ?? I18N.en[key] ?? key).replace(/\{(\w+)\}/g, (_, k) => params[k]);
 const short = sec => I18N[lang].dur(Math.floor(sec / 3600), Math.floor(sec % 3600 / 60), sec % 60);
