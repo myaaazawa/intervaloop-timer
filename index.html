@@ -674,10 +674,11 @@ function renderFavs() {
 // 名前の入力欄をページの中に出す（ブラウザの入力ダイアログはページの動きを止めてしまい、
 // 計測中だと区切りの音が鳴らなくなるため）
 function openFavForm(add, def, onSave) {
+  def = [...def].slice(0, 20).join('');   // 名前は20文字まで（自動で入る名前も）
   const form = document.createElement('span');
   form.className = 'fav-form';
   const inp = document.createElement('input');
-  inp.type = 'text'; inp.value = def; inp.maxLength = 40;
+  inp.type = 'text'; inp.value = def; inp.maxLength = 20;
   inp.placeholder = t('favName'); inp.setAttribute('aria-label', t('favName'));
   const ok = document.createElement('button');
   ok.type = 'button'; ok.className = 'ghost'; ok.textContent = t('favSave');
@@ -1123,6 +1124,41 @@ $('fsExit').onclick = toggleFullscreen;
 if (!document.fullscreenEnabled) $('fsBtn').hidden = true;
 
 // ---- キー操作 ----
+// ---- 数字の入力欄をそろえる ----
+// 入力中：欄の最大値の桁数（99 なら2桁、999 なら3桁）より多くは入らないようにする。
+// 欄から離れたとき：空欄は 0（最小値が1の欄は1）に、先頭の 0 は消し、分・秒が60以上なら繰り上げる
+const numDigits = inp => String(inp.max || 999).length;
+document.addEventListener('input', e => {
+  const inp = e.target;
+  if (!inp.matches?.('input[type=number]')) return;
+  // 先頭の 0 を消してから桁数を数える（「0008」と打っても 8 が入るように）
+  let v = inp.value.replace(/\D/g, '').replace(/^0+(?=\d)/, '');
+  if (v.length > numDigits(inp)) v = v.slice(0, numDigits(inp));
+  if (v !== inp.value) inp.value = v;
+}, true);
+function tidyNumber(inp) {
+  const min = Number(inp.min) || 0, max = Number(inp.max) || 999;
+  const n = parseInt(inp.value, 10);
+  inp.value = Math.min(max, Math.max(min, Number.isNaN(n) ? min : n));
+}
+// 時・分・秒の3つの欄：60秒→1分、60分→1時間に繰り上げる（最大 99時間59分59秒）
+function tidyHms(box) {
+  const get = u => Math.max(0, parseInt(box.querySelector(`[data-u=${u}]`).value, 10) || 0);
+  const total = Math.min(99 * 3600 + 59 * 60 + 59, get('h') * 3600 + get('m') * 60 + get('s'));
+  box.querySelector('[data-u=h]').value = Math.floor(total / 3600);
+  box.querySelector('[data-u=m]').value = Math.floor(total % 3600 / 60);
+  box.querySelector('[data-u=s]').value = total % 60;
+}
+// 先に整えてから、それぞれの欄のしくみ（設定の読み直しなど）に知らせる
+document.addEventListener('change', e => {
+  const inp = e.target;
+  if (!inp.matches?.('input[type=number]') || inp.disabled) return;
+  const box = inp.closest('.hms');
+  if (inp.dataset.u && box?.querySelector('[data-u=s]')) tidyHms(box);
+  else tidyNumber(inp);
+  inp.dispatchEvent(new Event('input', { bubbles: true }));
+}, true);
+
 // ⓘ の吹き出し：出す前に、画面の端からはみ出さない位置（--dx）を計算してから出す。
 // 先に出すと、はみ出した分だけページが一瞬広がり、正しい画面の幅が測れないため
 function showTip(info) {
