@@ -164,8 +164,10 @@
   /* 計測中は、呼び出しのボタンだけ押せない（登録と削除はできる） */
   .chip button:disabled { opacity: .45; cursor: default; }
   .fav-form { display: inline-flex; align-items: center; gap: 4px; flex-wrap: wrap; }
-  .chip-ask { color: var(--text); }
-  .chip-ask .ask-text { padding: 4px 4px 4px 10px; }
+  /* 削除の確認：ボタンは折り返さない。幅が足りないときは、文とボタンを2行に分ける */
+  .chip-ask { color: var(--text); flex-wrap: wrap; max-width: 100%; border-radius: 12px; row-gap: 0; }
+  .chip-ask .ask-text { padding: 4px 4px 4px 10px; min-width: 0; overflow-wrap: anywhere; }
+  .chip-ask button { white-space: nowrap; flex: 0 0 auto; }
   .chip .ask-yes { color: #e5534b; font-weight: 600; }
   .fav-note { font-size: 12px; color: #e5534b; }
   .fav-form input { font: inherit; font-size: 13px; width: 170px; max-width: 100%; padding: 4px 8px;
@@ -197,7 +199,8 @@
 
   .logo { display: flex; justify-content: center; margin-top: 4px; }
   .logo svg { overflow: visible; }
-  .logo text { font-size: 48px; font-weight: 600; fill: var(--text); letter-spacing: -1px; }
+  .logo text { font-family: "Segoe UI", -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
+               font-size: 48px; font-weight: 600; fill: var(--text); letter-spacing: -1px; }
   .logo text.logo-sub { font-size: 15px; font-weight: 400; fill: var(--sub); letter-spacing: 4.5px; }
   .logo .hole { fill: transparent; }
   .logo-track { fill: none; stroke: var(--track); }
@@ -221,6 +224,24 @@
   input[type=number] { -moz-appearance: textfield; appearance: textfield; }
   input[type=number]::-webkit-inner-spin-button,
   input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+  /* ボタンのアイコン：⏮ ▶ などの記号は端末によって見た目が変わる（iPhone では青い四角の絵文字になる）ので、
+     文字と同じ色の細い線で描く。ic はアイコンを文字の前に、ic-after は文字の後ろに付ける */
+  .icon-btn { display: inline-flex; align-items: center; justify-content: center; gap: 5px; white-space: nowrap; }
+  /* スマホの幅では1行に入らないので、先頭へ・スキップは、どちらもアイコンが上・文字が下にそろえる */
+  @media (max-width: 480px) {
+    #restartBtn, #skipBtn { flex-direction: column; gap: 3px; }
+    #skipBtn::after { order: -1; }
+  }
+  .ic::before, .ic-after::after {
+    content: ''; display: inline-block; flex: 0 0 auto; width: 14px; height: 14px; background: currentColor;
+    -webkit-mask: var(--icon) no-repeat center / contain; mask: var(--icon) no-repeat center / contain;
+  }
+  .ic-restart { --icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 5v14M19 5.5L9 12l10 6.5z'/%3E%3C/svg%3E"); }
+  .ic-skip { --icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M18 5v14M5 5.5L15 12 5 18.5z'/%3E%3C/svg%3E"); }
+  .ic-back { --icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M16 5.5L7 12l9 6.5z'/%3E%3C/svg%3E"); }
+  .ic-fwd { --icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M8 5.5l9 6.5-9 6.5z'/%3E%3C/svg%3E"); }
+  .ic-play { --icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M7 4.5l12 7.5-12 7.5z'/%3E%3C/svg%3E"); }
+  .ic-fullscreen { --icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 9V4h5M15 4h5v5M20 15v5h-5M9 20H4v-5'/%3E%3C/svg%3E"); }
 </style>
 </head>
 <body>
@@ -247,20 +268,20 @@
   </div>
 
   <div class="sub-controls hidden" id="subControls">
-    <button class="ghost" id="restartBtn" data-i18n="restart" data-i18n-title="restartTip"></button>
+    <button class="ghost icon-btn ic ic-restart" id="restartBtn" data-i18n="restart" data-i18n-title="restartTip"></button>
     <span class="sep"></span>
     <div class="seek">
-      <button class="ghost" data-dir="-1" data-i18n-title="backTip">◀</button>
+      <button class="ghost icon-btn ic ic-back" data-dir="-1" data-i18n-title="backTip"></button>
       <input type="number" inputmode="numeric" min="1" max="999" id="seekAmount">
       <select id="seekUnit">
         <option value="1" data-i18n="unitS"></option>
         <option value="60" data-i18n="unitM"></option>
         <option value="3600" data-i18n="unitH"></option>
       </select>
-      <button class="ghost" data-dir="1" data-i18n-title="fwdTip">▶</button>
+      <button class="ghost icon-btn ic ic-fwd" data-dir="1" data-i18n-title="fwdTip"></button>
     </div>
     <span class="sep"></span>
-    <button class="ghost" id="skipBtn" data-i18n="skip" data-i18n-title="skipTip"></button>
+    <button class="ghost icon-btn ic-after ic-skip" id="skipBtn" data-i18n="skip" data-i18n-title="skipTip"></button>
   </div>
   </div>
 
@@ -313,7 +334,7 @@
           <option value="xylo" data-i18n="sndXylo"></option>
           <option value="buzzer" data-i18n="sndBuzzer"></option>
         </select></label>
-      <button class="ghost" id="previewBtn" data-i18n="previewAll" data-i18n-title="previewTip"></button>
+      <button class="ghost icon-btn ic ic-play" id="previewBtn" data-i18n="previewAll" data-i18n-title="previewTip"></button>
     </div>
     <div class="row warn-row">
       <label class="switch"><input type="checkbox" id="warnOn"><span><span data-i18n="warnPre"></span><input class="num" type="number" inputmode="numeric" min="1" max="30" id="warnSec"><span data-i18n="warnPost"></span></span></label>
@@ -342,7 +363,7 @@
   <div class="footer">
     <div>
       <button class="ghost" id="helpBtn" data-i18n="keysLink"></button>
-      <button class="ghost" id="fsBtn" data-i18n="fullscreen" data-i18n-title="fullscreenTip"></button>
+      <button class="ghost icon-btn ic ic-fullscreen" id="fsBtn" data-i18n="fullscreen" data-i18n-title="fullscreenTip"></button>
     </div>
     <select id="langSel" aria-label="Language">
       <option value="ja">日本語</option>
@@ -350,7 +371,7 @@
     </select>
   </div>
   <div class="logo">
-    <svg id="logoSvg" role="img" aria-label="IntervaLoop Timer">
+    <svg id="logoSvg" lang="en" role="img" aria-label="IntervaLoop Timer">
       <text x="0" y="48">Interva<tspan>L</tspan><tspan class="hole">o</tspan><tspan class="hole">o</tspan>p</text>
       <g class="logo-rings"></g>
       <text class="logo-sub" y="80" text-anchor="middle">TIMER</text>
@@ -391,9 +412,9 @@ const I18N = {
   ja: {
     appTitle: 'IntervaLoop Timer',
     start: '開始', resume: '再開', pause: '一時停止', reset: 'リセット', resetTip: 'リセット（Shift+R）',
-    restart: '⏮ 先頭へ', restartTip: '今のワークタイム／インターバルの最初に戻る（Home）',
+    restart: '先頭へ', restartTip: '今のワークタイム／インターバルの最初に戻る（Home）',
     backTip: '戻す（←）', fwdTip: '進める（→）',
-    skip: 'スキップ ⏭', skipTip: '今のワークタイム／インターバルを飛ばす（End / S）',
+    skip: 'スキップ', skipTip: '今のワークタイム／インターバルを飛ばす（End / S）',
     unitS: '秒', unitM: '分', unitH: '時', h: '時', m: '分', s: '秒',
     work: 'ワークタイム', rest: 'インターバル', repeat: '繰り返し回数', times: '回',
     countdown: '開始前のカウントダウン',
@@ -405,9 +426,9 @@ const I18N = {
     warnInfo: 'ワークタイムが設定秒数の2倍以上のときだけ、合図が出ます（例：残り{s}秒なら、{d}秒以上のワークタイムのとき）。残り秒数になると、丸いバーの色も変わります。',
     sndSimple: 'シンプル', sndPon: 'ポーン', sndPipipi: 'ピピピ', sndWhistle: 'ホイッスル', sndChime: 'チャイム',
     sndBell: 'ベル', sndXylo: '木琴', sndBuzzer: 'ブザー',
-    previewAll: '▶ 全部聞く', previewTip: '開始・区切り・終了・最後の音を順番に鳴らす',
+    previewAll: '全部聞く', previewTip: '開始・区切り・終了・最後の音を順番に鳴らす',
     colors: '色の設定', doneColor: '残り秒数／終了', colorReset: '元に戻す',
-    fullscreen: '⛶ 全画面', fullscreenTip: '全画面表示（F）', fsExit: '全画面を終了（Esc）',
+    fullscreen: '全画面', fullscreenTip: '全画面表示（F）', fsExit: '全画面を終了（Esc）',
     theme: '背景', themeAuto: '自動（ブラウザに合わせる）', themeLight: 'ライト', themeDark: 'ダーク',
     favFull: 'これ以上登録できません',
     ready: '準備OK', getReady: 'まもなく開始', phaseWork: 'ワークタイム', phaseRest: 'インターバル', paused: '（一時停止）', done: '終了！',
@@ -437,9 +458,9 @@ const I18N = {
   en: {
     appTitle: 'IntervaLoop Timer',
     start: 'Start', resume: 'Resume', pause: 'Pause', reset: 'Reset', resetTip: 'Reset (Shift+R)',
-    restart: '⏮ Restart', restartTip: 'Back to the start of this work time / interval (Home)',
+    restart: 'Restart', restartTip: 'Back to the start of this work time / interval (Home)',
     backTip: 'Back (←)', fwdTip: 'Forward (→)',
-    skip: 'Skip ⏭', skipTip: 'Skip this work time / interval (End / S)',
+    skip: 'Skip', skipTip: 'Skip this work time / interval (End / S)',
     unitS: 'sec', unitM: 'min', unitH: 'hr', h: 'h', m: 'm', s: 's',
     work: 'Work time', rest: 'Interval', repeat: 'Repeat', times: 'times',
     countdown: 'Countdown before start',
@@ -451,9 +472,9 @@ const I18N = {
     warnInfo: 'The signal only plays when the work time is at least twice the set seconds (e.g. with {s} seconds, work times of {d} seconds or longer). The ring also changes color at that point.',
     sndSimple: 'Simple', sndPon: 'Pong', sndPipipi: 'Beep beep', sndWhistle: 'Whistle', sndChime: 'Chime',
     sndBell: 'Bell', sndXylo: 'Xylophone', sndBuzzer: 'Buzzer',
-    previewAll: '▶ Preview all', previewTip: 'Play the start, switch, end and final sounds in order',
+    previewAll: 'Preview all', previewTip: 'Play the start, switch, end and final sounds in order',
     colors: 'Colors', doneColor: 'Last seconds / Done', colorReset: 'Reset colors',
-    fullscreen: '⛶ Full screen', fullscreenTip: 'Full screen (F)', fsExit: 'Exit full screen (Esc)',
+    fullscreen: 'Full screen', fullscreenTip: 'Full screen (F)', fsExit: 'Exit full screen (Esc)',
     theme: 'Background', themeAuto: 'Auto (match browser)', themeLight: 'Light', themeDark: 'Dark',
     favFull: 'You can\'t add any more favorites.',
     ready: 'Ready', getReady: 'Get ready', phaseWork: 'Work time', phaseRest: 'Interval', paused: ' (paused)', done: 'Done!',
@@ -679,7 +700,9 @@ function askDelete(chip, name, onYes) {
   const ask = document.createElement('span');
   ask.className = 'chip chip-ask';
   const msg = document.createElement('span');
-  msg.className = 'ask-text'; msg.textContent = t('favDelAsk', { name });
+  // 長い名前は、途中から「…」で省略する
+  const shown = [...name].length > 16 ? [...name].slice(0, 15).join('') + '…' : name;
+  msg.className = 'ask-text'; msg.textContent = t('favDelAsk', { name: shown }); msg.title = name;
   const yes = document.createElement('button');
   yes.type = 'button'; yes.className = 'ask-yes'; yes.textContent = t('favDelYes');
   const no = document.createElement('button');
@@ -1174,12 +1197,14 @@ document.addEventListener('keydown', e => {
 
 $('langSel').addEventListener('change', () => {
   lang = settings.lang = $('langSel').value;
-  save(); applyLang(); renderFavs(); render();
+  save(); applyLang(); renderFavs(); buildLogo(); render();
 });
 
 applyLang();
 renderFavs();
 buildLogo();
+// 文字の読み込みが終わったら、輪の位置を測り直す（読み込み前の文字の幅で測るとずれるため）
+document.fonts?.ready.then(() => { buildLogo(); render(); });
 render();
 </script>
 </body>
