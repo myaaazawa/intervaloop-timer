@@ -54,8 +54,9 @@
   .bar { fill: none; stroke: var(--work); stroke-width: 16; stroke-linecap: round;
          transition: stroke .3s; }
   .ring-wrap.dragging .bar { transition: none; }
-  .knob { fill: var(--panel); stroke: var(--work); stroke-width: 3; display: none; pointer-events: none; }
-  .ring-wrap.active .knob { display: block; }
+  /* つまみ（バーの端の丸）は、計測中でロックを解除しているときだけ、ふわっと出す */
+  .knob { fill: var(--panel); stroke: var(--work); stroke-width: 3; opacity: 0; transition: opacity .2s; pointer-events: none; }
+  .ring-wrap.active:not(.ring-locked) .knob { opacity: 1; }
   .center { position: absolute; inset: 40px; display: flex; flex-direction: column;
             align-items: center; justify-content: center; gap: 6px; pointer-events: none; }
   .phase { font-size: 15px; font-weight: 600; letter-spacing: .05em; color: var(--work); }
@@ -251,6 +252,14 @@
   .ic-fwd { --icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M8 5.5l9 6.5-9 6.5z'/%3E%3C/svg%3E"); }
   .ic-play { --icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M7 4.5l12 7.5-12 7.5z'/%3E%3C/svg%3E"); }
   .ic-fullscreen { --icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 9V4h5M15 4h5v5M20 15v5h-5M9 20H4v-5'/%3E%3C/svg%3E"); }
+  /* 丸いバーのロック：右下の小さな鍵。ロック中は、丸いバーに触れても時間が動かず、上からスクロールもできる */
+  .ring-lock { position: absolute; right: 0; bottom: 0; width: 32px; height: 32px; padding: 0; border-radius: 50%; }
+  .ring-lock::before { width: 16px; height: 16px; }
+  .ring-lock { --icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='5' y='11' width='14' height='9' rx='2'/%3E%3Cpath d='M8 11V8a4 4 0 0 1 7.6-1.7'/%3E%3C/svg%3E"); }
+  .ring-lock.locked { --icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='5' y='11' width='14' height='9' rx='2'/%3E%3Cpath d='M8 11V8a4 4 0 0 1 8 0v3'/%3E%3C/svg%3E"); }
+  .ring-wrap.ring-locked { touch-action: auto; }
+  .ring-wrap.ring-locked .track, .ring-wrap.ring-locked .bar { cursor: default; }
+  @media (pointer: coarse) { .ring-lock { width: 44px; height: 44px; right: -6px; bottom: -6px; } }
 </style>
 </head>
 <body>
@@ -268,6 +277,7 @@
       <div class="time" id="time">00:00</div>
       <div class="round" id="round"></div>
     </div>
+    <button class="ghost icon-btn ic ring-lock" id="ringLock" type="button"></button>
   </div>
 
   <div class="controls">
@@ -406,7 +416,7 @@ bar.style.strokeDasharray = CIRC;
 
 // ---- 設定 ----
 const defaultColors = { work: '#ff7a45', rest: '#3aa5ff', done: '#34c07a' };
-const defaults = { work: 25 * 60, rest: 5 * 60, repeat: 4, countdown: 3, se: true, volume: 70, sound: 'simple',
+const defaults = { work: 25 * 60, rest: 5 * 60, repeat: 4, countdown: 3, ringLock: true, se: true, volume: 70, sound: 'simple',
                    warnSound: true, warnSec: 5, colors: { ...defaultColors }, favorites: [] };
 let settings = { ...defaults };
 try { Object.assign(settings, JSON.parse(localStorage.getItem('intervalTimer') || '{}')); } catch (e) {}
@@ -445,6 +455,7 @@ const I18N = {
     needWork: 'ワークタイムを1秒以上に設定してください。',
     timePanel: '時間の設定', soundPanel: '音の設定',
     favAdd: '＋ 時間と回数をお気に入りに', favName: 'お気に入りの名前', favDel: '削除',
+    lockOn: '丸いバーの操作：ロック中（押すと解除）', lockOff: '丸いバーで時間を動かせます（押すとロック）',
     favSave: '登録', favCancel: 'キャンセル', favDelYes: '削除', favDelNo: 'やめる',
     favDelAsk: '「{name}」を削除しますか？',
     favTip: 'ワークタイム {work} / インターバル {rest} / {repeat}回',
@@ -491,6 +502,7 @@ const I18N = {
     needWork: 'Please set the work time to at least 1 second.',
     timePanel: 'Time', soundPanel: 'Sound',
     favAdd: '+ Save time & repeat', favName: 'Name for this favorite', favDel: 'Delete',
+    lockOn: 'Ring is locked (click to unlock)', lockOff: 'Ring can be dragged (click to lock)',
     favSave: 'Save', favCancel: 'Cancel', favDelYes: 'Delete', favDelNo: 'Keep',
     favDelAsk: 'Delete "{name}"?',
     favTip: 'Work time {work} / Interval {rest} / {repeat} times',
@@ -1100,8 +1112,19 @@ function seekToFrac(f) {
   setLeft((totalSec - elapsedSec) * 1000);
   render();
 }
+// ---- 丸いバーのロック（誤操作を防ぐ。最初はロックしておく） ----
+function applyRingLock() {
+  const on = !!settings.ringLock, label = t(on ? 'lockOn' : 'lockOff');
+  $('ringLock').classList.toggle('locked', on);
+  $('ringLock').title = label;
+  $('ringLock').setAttribute('aria-label', label);
+  $('ringLock').setAttribute('aria-pressed', String(on));
+  ring.classList.toggle('ring-locked', on);
+}
+$('ringLock').onclick = () => { settings.ringLock = !settings.ringLock; save(); applyRingLock(); };
+applyRingLock();
 ring.addEventListener('pointerdown', e => {
-  if (!active() || !onBand(e)) return;
+  if (!active() || settings.ringLock || e.target.closest('#ringLock') || !onBand(e)) return;
   dragging = true; ring.classList.add('dragging');
   ring.setPointerCapture(e.pointerId);
   lastFrac = fracFromPointer(e);
@@ -1242,7 +1265,7 @@ document.addEventListener('keydown', e => {
 
 $('langSel').addEventListener('change', () => {
   lang = settings.lang = $('langSel').value;
-  save(); applyLang(); renderFavs(); buildLogo(); render();
+  save(); applyLang(); renderFavs(); buildLogo(); applyRingLock(); render();
 });
 
 applyLang();
