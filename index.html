@@ -5,7 +5,20 @@
 <!-- 安全設定：外部のプログラムやスタイルは読み込まない。画像だけは、URLで追加できるよう外部も許可する -->
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src * data: blob:; media-src data: blob:; connect-src data: blob:; font-src data:; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>IntervaLoop Timer</title>
+<title>IntervaLoop Timer｜無料のインターバルタイマー</title>
+<meta name="description" content="ワークタイムとインターバルを、決めた回数くり返せる無料のインターバルタイマー。インストール不要で、ブラウザですぐ使えます。トレーニングや勉強、作業の時間管理に。">
+<!-- SNS などにリンクを貼ったときに出るカードの情報 -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="IntervaLoop Timer">
+<meta property="og:title" content="IntervaLoop Timer｜無料のインターバルタイマー">
+<meta property="og:description" content="ワークタイムとインターバルを、決めた回数くり返せる無料のインターバルタイマー。インストール不要で、ブラウザですぐ使えます。トレーニングや勉強、作業の時間管理に。">
+<meta property="og:url" content="https://myaaazawa.github.io/intervaloop-timer/">
+<meta property="og:image" content="https://myaaazawa.github.io/intervaloop-timer/logo/IntervaLoop_card_timer.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="IntervaLoop Timer">
+<meta property="og:locale" content="ja_JP">
+<meta name="twitter:card" content="summary_large_image">
 <link rel="icon" id="favicon" type="image/svg+xml" href="data:,">
 <style>
   :root {
@@ -431,7 +444,7 @@ const warnSec = () => Math.min(30, Math.max(1, settings.warnSec || 5));
 // 言語を増やすときは、ここに同じキーを持つ表を1つ追加し、#langSel に option を足す
 const I18N = {
   ja: {
-    appTitle: 'IntervaLoop Timer',
+    appTitle: 'IntervaLoop Timer｜無料のインターバルタイマー',
     start: '開始', resume: '再開', pause: '一時停止', reset: 'リセット', resetTip: 'リセット（Shift+R）',
     restart: '先頭へ', restartTip: '今のワークタイム／インターバルの最初に戻る（Home）',
     backTip: '戻す（←）', fwdTip: '進める（→）',
@@ -478,7 +491,7 @@ const I18N = {
     ],
   },
   en: {
-    appTitle: 'IntervaLoop Timer',
+    appTitle: "IntervaLoop Timer – Free Interval Timer",
     start: 'Start', resume: 'Resume', pause: 'Pause', reset: 'Reset', resetTip: 'Reset (Shift+R)',
     restart: 'Restart', restartTip: 'Back to the start of this work time / interval (Home)',
     backTip: 'Back (←)', fwdTip: 'Forward (→)',
