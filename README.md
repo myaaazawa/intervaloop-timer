@@ -12,6 +12,12 @@
 
 **アプリを開く：** https://myaaazawa.github.io/intervaloop-timer/
 
+### 画面
+
+<img src="screenshots/timer-pc-dark.png" alt="パソコンの画面（ダーク）" width="640">
+
+<img src="screenshots/timer-phone-light.png" alt="スマートフォンの画面（ライト）" width="260"> <img src="screenshots/timer-phone-dark.png" alt="スマートフォンの画面（ダーク）" width="260">
+
 ### 主な機能
 
 - ワークタイム・インターバル・繰り返し回数の設定（回数 0 で、止めるまでくり返す）
@@ -82,6 +88,12 @@ Use it for studying, workouts, drawing practice, or anything you want to do in t
 No installation or sign-up needed.
 
 **Open the app:** https://myaaazawa.github.io/intervaloop-timer/
+
+### Screenshots
+
+<img src="screenshots/timer-pc-dark.png" alt="Computer screen (dark)" width="640">
+
+<img src="screenshots/timer-phone-light.png" alt="Smartphone screen (light)" width="260"> <img src="screenshots/timer-phone-dark.png" alt="Smartphone screen (dark)" width="260">
 
 ### Features
 
