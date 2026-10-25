@@ -26,6 +26,7 @@
     --line: #dde1e8; --track: #e6e9ef; --logo-track: #cfd4dc;
     --work: #ff7a45; --rest: #3aa5ff; --done: #34c07a;
     --btn: #1d2330; --btn-text: #fff;
+    --pop: #ffffff; --pop-line: #d3d8e0;   /* 吹き出し・お知らせ（ダイアログと同じ見た目） */
     color-scheme: light;
   }
   /* 背景：自動ならブラウザの設定に合わせ、data-theme があればそれに従う */
@@ -33,12 +34,14 @@
     :root:not([data-theme="light"]) {
       --bg: #15181e; --panel: #1e222a; --text: #eef1f6; --sub: #9aa3b5;
       --line: #2f3542; --track: #2a2f3a; --logo-track: #4a5263; --btn: #eef1f6; --btn-text: #15181e;
+      --pop: #272c36; --pop-line: #3a4150;
       color-scheme: dark;
     }
   }
   :root[data-theme="dark"] {
     --bg: #15181e; --panel: #1e222a; --text: #eef1f6; --sub: #9aa3b5;
     --line: #2f3542; --track: #2a2f3a; --logo-track: #4a5263; --btn: #eef1f6; --btn-text: #15181e;
+    --pop: #272c36; --pop-line: #3a4150;
     color-scheme: dark;
   }
   * { box-sizing: border-box; }
@@ -63,7 +66,7 @@
   .stage:fullscreen .fs-exit { display: block; }
 
   .ring-wrap { position: relative; width: 300px; height: 300px; margin: 0 auto; touch-action: none; }
-  .ring-wrap svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+  .ring-wrap svg { width: 100%; height: 100%; transform: rotate(-90deg); overflow: visible; }
   .ring-wrap.active .track, .ring-wrap.active .bar { cursor: pointer; }
   .track { fill: none; stroke: var(--track); stroke-width: 16; }
   .bar { fill: none; stroke: var(--work); stroke-width: 16; stroke-linecap: round;
@@ -159,12 +162,17 @@
      開いたときに画面からはみ出す分は、JS で --dx だけずらす */
   .info .tip { position: absolute; bottom: calc(100% + 8px); left: 50%; transform: translateX(-70%);
                translate: var(--dx, 0px) 0; width: min(250px, calc(100vw - 24px));
-               background: var(--btn); color: var(--btn-text); font-size: 12px; font-weight: 400; line-height: 1.55;
-               padding: 8px 11px; border-radius: 8px; box-shadow: 0 4px 14px rgba(0,0,0,.25);
+               background: var(--pop); color: var(--text); border: 1px solid var(--pop-line);
+               font-size: 12px; font-weight: 400; line-height: 1.55;
+               padding: 8px 11px; border-radius: 10px; box-shadow: 0 6px 18px rgba(0,0,0,.28);
                white-space: normal;   /* 項目名の「折り返さない」設定を引き継がず、枠の中で折り返す */
                display: none; pointer-events: none; z-index: 5; }
-  .info .tip::after { content: ''; position: absolute; top: 100%; left: calc(70% - var(--dx, 0px)); border: 6px solid transparent;
-                      border-top-color: var(--btn); transform: translateX(-50%); }
+  /* 矢印は、枠線付きの小さな四角を45度回して作る（吹き出しの枠線とつながるように） */
+  .info .tip::after {
+    content: ''; position: absolute; top: 100%; width: 9px; height: 9px; margin-top: -4px;
+    background: var(--pop); border: 1px solid var(--pop-line); border-width: 0 1px 1px 0;
+    transform: translateX(-50%) rotate(45deg); }
+  .info .tip::after { left: calc(70% - var(--dx, 0px)); }
   /* マウスを乗せる・タップして選ぶと、JS が位置を決めてから show を付けて出す */
   .info.show .tip { display: block; }
   /* 左寄りの項目では、吹き出しを右向きに開く */
@@ -272,6 +280,25 @@
   .ring-lock::before { width: 16px; height: 16px; }
   .ring-lock { --icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='5' y='11' width='14' height='9' rx='2'/%3E%3Cpath d='M8 11V8a4 4 0 0 1 7.6-1.7'/%3E%3C/svg%3E"); }
   .ring-lock.locked { --icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='5' y='11' width='14' height='9' rx='2'/%3E%3Cpath d='M8 11V8a4 4 0 0 1 8 0v3'/%3E%3C/svg%3E"); }
+  /* ロック中は色を反転して、ひと目で分かるようにする */
+  .ring-lock.locked, .ring-lock.locked:hover { background: var(--btn); color: var(--btn-text); }
+  .ring-lock.locked:hover { opacity: .85; }
+  /* ロックを解除したとき、丸いバーの外側へ細い輪（波紋）を一度広げる（触れるようになった合図）。
+     ぼかしや半透明は使わず、線を細くしながら広げて消すので、色が混ざらずくっきり見える */
+  .ripple { fill: none; stroke: var(--glow); stroke-width: 0; pointer-events: none; transform-origin: 100px 100px; }
+  .ring-wrap.glow .ripple { animation: ring-ripple .6s cubic-bezier(.2, .7, .3, 1); }
+  @keyframes ring-ripple {
+    from { stroke-width: 5; transform: scale(1); }
+    to   { stroke-width: 0; transform: scale(1.12); }
+  }
+  /* 動きを減らす設定の人には、広がりを小さく、短くする */
+  @media (prefers-reduced-motion: reduce) {
+    .ring-wrap.glow .ripple { animation-duration: .35s; }
+    @keyframes ring-ripple { from { stroke-width: 4; transform: scale(1); } to { stroke-width: 0; transform: scale(1.03); } }
+  }
+  /* 画面には出さず、読み上げ機能にだけ伝える文 */
+  .sr-only { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden;
+             clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
   .ring-wrap.ring-locked { touch-action: auto; }
   .ring-wrap.ring-locked .track, .ring-wrap.ring-locked .bar { cursor: default; }
   @media (pointer: coarse) { .ring-lock { width: 44px; height: 44px; right: -6px; bottom: -6px; } }
@@ -286,6 +313,7 @@
       <circle class="track" cx="100" cy="100" r="88"/>
       <circle class="bar" id="bar" cx="100" cy="100" r="88"/>
       <circle class="knob" id="knob" cx="188" cy="100" r="7"/>
+      <circle class="ripple" cx="100" cy="100" r="96"/>
     </svg>
     <div class="center">
       <div class="phase" id="phase"></div>
@@ -293,6 +321,7 @@
       <div class="round" id="round"></div>
     </div>
     <button class="ghost icon-btn ic ring-lock" id="ringLock" type="button"></button>
+    <div class="sr-only" id="lockStatus" role="status" aria-live="polite"></div>
   </div>
 
   <div class="controls">
@@ -470,6 +499,7 @@ const I18N = {
     needWork: 'ワークタイムを1秒以上に設定してください。',
     timePanel: '時間の設定', soundPanel: '音の設定',
     favAdd: '＋ 時間と回数をお気に入りに', favName: 'お気に入りの名前', favDel: '削除',
+    lockTipOn: 'ロックしました', lockTipOff: 'ロックを解除しました',
     lockOn: '丸いバーの操作：ロック中（押すと解除）', lockOff: '丸いバーで時間を動かせます（押すとロック）',
     favSave: '登録', favCancel: 'キャンセル', favDelYes: '削除', favDelNo: 'やめる',
     favDelAsk: '「{name}」を削除しますか？',
@@ -517,6 +547,7 @@ const I18N = {
     needWork: 'Please set the work time to at least 1 second.',
     timePanel: 'Time', soundPanel: 'Sound',
     favAdd: '+ Save time & repeat', favName: 'Name for this favorite', favDel: 'Delete',
+    lockTipOn: 'Locked', lockTipOff: 'Unlocked',
     lockOn: 'Ring is locked (click to unlock)', lockOff: 'Ring can be dragged (click to lock)',
     favSave: 'Save', favCancel: 'Cancel', favDelYes: 'Delete', favDelNo: 'Keep',
     favDelAsk: 'Delete "{name}"?',
@@ -1009,12 +1040,18 @@ const onScreen = el => {
   const r = el.getBoundingClientRect();
   return r.bottom > 0 && r.top < innerHeight;
 };
+// 画面内に全部見えているか（少しでも見切れていれば false）
+const fullyOnScreen = el => {
+  const r = el.getBoundingClientRect();
+  return r.top >= 0 && r.bottom <= innerHeight;
+};
 // 輪の残り（0〜1）を、丸いバーと同じく12時側から減らして表示する。
-// 時間表示とロゴが同時に見えているときは、気が散らないようロゴは動かさない
+// 丸いバーが全部見えていて、ロゴも見えているときは、気が散らないようロゴは動かさない。
+// 丸いバーが少しでも見切れたら（12時側が見えないと進み具合が分かりにくいため）、ロゴを動かす
 function updateLogo(elapsed) {
   if (logoRings.length < 2) return;
   let left = [1, 0.7];                      // 止まっているときの形（ロゴの画像と同じ）
-  const linked = active() && !(onScreen(ring) && onScreen($('logoSvg')));
+  const linked = active() && !(fullyOnScreen(ring) && onScreen($('logoSvg')));
   if (linked) left = phase === 'work' ? [1 - elapsed, 1] : phase === 'rest' ? [1, 1 - elapsed] : [1, 1];
   else if (state === 'done') left = [1, 1];
   logoRings.forEach(({ arc, c }, i) => arc.style.strokeDashoffset = -c * (1 - left[i]));
@@ -1132,12 +1169,26 @@ function seekToFrac(f) {
 function applyRingLock() {
   const on = !!settings.ringLock, label = t(on ? 'lockOn' : 'lockOff');
   $('ringLock').classList.toggle('locked', on);
-  $('ringLock').title = label;
   $('ringLock').setAttribute('aria-label', label);
   $('ringLock').setAttribute('aria-pressed', String(on));
   ring.classList.toggle('ring-locked', on);
 }
-$('ringLock').onclick = () => { settings.ringLock = !settings.ringLock; save(); applyRingLock(); };
+$('ringLock').onclick = () => {
+  settings.ringLock = !settings.ringLock; save(); applyRingLock();
+  if (!settings.ringLock) glowRing();
+  // 読み上げ機能には、ロックしたか解除したかを伝える（画面には出さない）
+  $('lockStatus').textContent = t(settings.ringLock ? 'lockTipOn' : 'lockTipOff');
+};
+// 丸いバーの外側に波紋を一度広げる。色は、いまのバーの色（ワークタイム・インターバルなど）に合わせる
+let glowTimer = null;
+function glowRing() {
+  ring.style.setProperty('--glow', getComputedStyle(bar).stroke);
+  ring.classList.remove('glow');
+  void ring.offsetWidth;   // 続けて押したときも、最初から光らせ直す
+  ring.classList.add('glow');
+  clearTimeout(glowTimer);
+  glowTimer = setTimeout(() => ring.classList.remove('glow'), 700);   // 広がり終わったら外す
+}
 applyRingLock();
 ring.addEventListener('pointerdown', e => {
   if (!active() || settings.ringLock || e.target.closest('#ringLock') || !onBand(e)) return;
