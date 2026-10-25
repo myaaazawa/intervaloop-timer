@@ -5,26 +5,26 @@
 <!-- 安全設定：外部のプログラムやスタイルは読み込まない。画像だけは、URLで追加できるよう外部も許可する -->
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src * data: blob:; media-src data: blob:; connect-src data: blob:; font-src data:; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>IntervaLoop for Artists｜クロッキー・ドローイング練習用タイマー</title>
-<meta name="description" content="参考画像を表示しながら時間を計れる、クロッキー・ドローイング練習用の無料タイマー。画像は自動で切り替わり、ポーズ時間も自由に設定できます。インストール不要。">
+<title>IntervaLoop Timer｜無料のインターバルタイマー</title>
+<meta name="description" content="ワークタイムとインターバルを、決めた回数くり返せる無料のインターバルタイマー。インストール不要で、ブラウザですぐ使えます。トレーニングや勉強、作業の時間管理に。">
 <!-- SNS などにリンクを貼ったときに出るカードの情報 -->
 <meta property="og:type" content="website">
-<meta property="og:site_name" content="IntervaLoop for Artists">
-<meta property="og:title" content="IntervaLoop for Artists｜クロッキー・ドローイング練習用タイマー">
-<meta property="og:description" content="参考画像を表示しながら時間を計れる、クロッキー・ドローイング練習用の無料タイマー。画像は自動で切り替わり、ポーズ時間も自由に設定できます。インストール不要。">
-<meta property="og:url" content="https://myaaazawa.github.io/intervaloop-artists/">
-<meta property="og:image" content="https://myaaazawa.github.io/intervaloop-artists/logo/IntervaLoop_card_artists.png">
+<meta property="og:site_name" content="IntervaLoop Timer">
+<meta property="og:title" content="IntervaLoop Timer｜無料のインターバルタイマー">
+<meta property="og:description" content="ワークタイムとインターバルを、決めた回数くり返せる無料のインターバルタイマー。インストール不要で、ブラウザですぐ使えます。トレーニングや勉強、作業の時間管理に。">
+<meta property="og:url" content="https://myaaazawa.github.io/intervaloop-timer/">
+<meta property="og:image" content="https://myaaazawa.github.io/intervaloop-timer/logo/IntervaLoop_card_timer.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="IntervaLoop for Artists">
+<meta property="og:image:alt" content="IntervaLoop Timer">
 <meta property="og:locale" content="ja_JP">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="icon" id="favicon" type="image/svg+xml" href="data:,">
 <style>
   :root {
     --bg: #f4f5f7; --panel: #ffffff; --text: #1d2330; --sub: #6b7385;
-    --line: #dde1e8; --track: #e6e9ef; --logo-track: #cfd4dc; --viewer: #e2e5ea;
-    --work: #6c7cff; --rest: #f2b84b; --done: #4fd1a5;
+    --line: #dde1e8; --track: #e6e9ef; --logo-track: #cfd4dc;
+    --work: #ff7a45; --rest: #3aa5ff; --done: #34c07a;
     --btn: #1d2330; --btn-text: #fff;
     --pop: #ffffff; --pop-line: #d3d8e0;   /* 吹き出し・お知らせ（ダイアログと同じ見た目） */
     color-scheme: light;
@@ -33,263 +33,126 @@
   @media (prefers-color-scheme: dark) {
     :root:not([data-theme="light"]) {
       --bg: #15181e; --panel: #1e222a; --text: #eef1f6; --sub: #9aa3b5;
-      --line: #2f3542; --track: #2a2f3a; --logo-track: #4a5263; --viewer: #0d0f13; --btn: #eef1f6; --btn-text: #15181e;
+      --line: #2f3542; --track: #2a2f3a; --logo-track: #4a5263; --btn: #eef1f6; --btn-text: #15181e;
       --pop: #272c36; --pop-line: #3a4150;
       color-scheme: dark;
     }
   }
   :root[data-theme="dark"] {
     --bg: #15181e; --panel: #1e222a; --text: #eef1f6; --sub: #9aa3b5;
-    --line: #2f3542; --track: #2a2f3a; --logo-track: #4a5263; --viewer: #0d0f13; --btn: #eef1f6; --btn-text: #15181e;
+    --line: #2f3542; --track: #2a2f3a; --logo-track: #4a5263; --btn: #eef1f6; --btn-text: #15181e;
     --pop: #272c36; --pop-line: #3a4150;
     color-scheme: dark;
   }
   * { box-sizing: border-box; }
   body {
-    margin: 0; height: 100vh; background: var(--bg); color: var(--text);
+    margin: 0; min-height: 100vh; background: var(--bg); color: var(--text);
     font-family: "Segoe UI", "Yu Gothic UI", "Meiryo", sans-serif;
-    display: grid; grid-template-columns: minmax(0, 1fr) 360px; overflow: hidden;
+    display: flex; justify-content: center; padding: 24px 16px;
+    overflow-x: hidden;   /* 念のため：どこかが少しはみ出しても、ページが横にスライドしないようにする */
   }
-  /* 横幅が狭いときは、画像の下に設定を並べる */
-  @media (max-width: 900px) {
-    /* 念のため：どこかが少しはみ出しても、ページが横にスライドしないようにする */
-    body { display: block; height: auto; overflow-x: hidden; overflow-y: auto; }
-    .stage-col { height: 70vh; }
-    .side { height: auto; overflow: visible; }
-  }
+  .app { width: 100%; max-width: 440px; display: flex; flex-direction: column; gap: 18px; }
 
-  /* ---- 左：画像の表示窓と画像の並び ---- */
-  .stage-col { display: flex; flex-direction: column; min-width: 0; height: 100vh; }
-  .viewer { position: relative; flex: 1; min-height: 0; background: var(--viewer); overflow: hidden; }
-  .viewer.zoomed { cursor: grab; }
-  .viewer.panning { cursor: grabbing; }
-  .frame { position: absolute; transform-origin: center center; }
-  .frame img { width: 100%; height: 100%; display: block; user-select: none; -webkit-user-drag: none; }
-  .frame img.flip { transform: scaleX(-1); }
-  .grid-ov { position: absolute; inset: 0; pointer-events: none; display: none; mix-blend-mode: difference;
-    background-image: linear-gradient(to right, rgba(255,255,255,.75) 1px, transparent 1px),
-                      linear-gradient(to bottom, rgba(255,255,255,.75) 1px, transparent 1px);
-    background-size: calc(100% / var(--n)) calc(100% / var(--n));
-    box-shadow: inset -1px -1px 0 rgba(255,255,255,.75); }
-  .grid-ov.on { display: block; }
+  /* 丸いバーと操作ボタン。全画面表示では、この部分だけを画面いっぱいに出す */
+  .stage { position: relative; display: flex; flex-direction: column; gap: 18px; }
+  .stage:fullscreen { --S: min(68vh, 90vw); background: var(--bg); justify-content: center; align-items: center; }
+  .stage:fullscreen .ring-wrap { width: var(--S); height: var(--S); }
+  .stage:fullscreen .center { inset: calc(var(--S) * .133); }
+  .stage:fullscreen .time { font-size: calc(var(--S) * .18); }
+  .stage:fullscreen .phase { font-size: calc(var(--S) * .05); }
+  .stage:fullscreen .round { font-size: calc(var(--S) * .047); }
+  .stage:fullscreen .controls { width: min(440px, 90vw); }
+  .fs-exit { display: none; position: absolute; top: 12px; right: 12px; }
+  .stage:fullscreen .fs-exit { display: block; }
 
-  .empty { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center;
-           justify-content: center; gap: 14px; color: var(--sub); text-align: center; padding: 24px; }
-  .empty.hidden { display: none; }
-  .empty .big { font-size: 18px; font-weight: 600; color: var(--text); }
-  .empty .btns { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
-  .empty .notice { margin-top: 18px; max-width: 560px; font-size: 12px; line-height: 1.6;
-                   border: 1px solid var(--line); border-radius: 10px; padding: 10px 14px; }
-
-  .overlay { position: absolute; inset: 0; display: none; flex-direction: column; align-items: center;
-             justify-content: center; gap: 8px; background: rgba(0,0,0,.55); color: #fff; pointer-events: none; }
-  .overlay.on { display: flex; }
-  /* チェンジ中に次の画像を見せるときは、幕を薄くして画像が見えるようにする */
-  .overlay.light { background: rgba(0,0,0,.25); text-shadow: 0 1px 6px rgba(0,0,0,.6); }
-  .overlay .ov-title { font-size: 28px; font-weight: 600; }
-  .overlay .ov-time { font-size: 56px; font-weight: 300; font-variant-numeric: tabular-nums; }
-  .overlay .ov-count { font-size: 120px; font-weight: 300; line-height: 1; font-variant-numeric: tabular-nums; }
-  .overlay .ov-sub { font-size: 15px; opacity: .85; }
-  /* 終了後の振り返り：描いた画像を並べる（クリックで大きく表示） */
-  .overlay.review { pointer-events: auto; justify-content: flex-start; padding: 48px 24px 24px; overflow-y: auto;
-                    background: rgba(0,0,0,.78); }
-  /* 全画面にした直後は、ブラウザが上の方に「Esc で終了」の案内を出すので、重ならないよう下げる */
-  .viewer:fullscreen .overlay.review { padding-top: 110px; }
-  .review-grid { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; max-width: 960px; margin-top: 12px; }
-  .review-grid button { position: relative; width: 100px; height: 100px; padding: 0; border: 2px solid transparent;
-                        border-radius: 8px; overflow: hidden; cursor: pointer; background: #222; }
-  .review-grid button:hover { border-color: var(--work); }
-  .review-grid img { width: 100%; height: 100%; object-fit: cover; display: block; }
-  .review-grid .rn { position: absolute; left: 4px; top: 4px; font-size: 11px; background: rgba(0,0,0,.65);
-                     color: #fff; border-radius: 4px; padding: 0 5px; }
-  .ov-btn { margin-top: 14px; font: inherit; font-size: 14px; color: #fff; background: rgba(255,255,255,.12);
-            border: 1px solid rgba(255,255,255,.3); border-radius: 999px; padding: 7px 18px; cursor: pointer; }
-  .ov-btn:hover { background: rgba(255,255,255,.22); }
-  .review-btn { position: absolute; left: 10px; bottom: 10px; display: none; }
-  .viewer.show-review-btn .review-btn { display: block; }
-
-  .dropzone { position: absolute; inset: 12px; border: 3px dashed var(--work); border-radius: 16px; display: none;
-              align-items: center; justify-content: center; font-size: 20px; font-weight: 600; color: var(--work);
-              background: rgba(0,0,0,.25); pointer-events: none; }
-  .viewer.dragover .dropzone { display: flex; }
-
-  /* 画像だけを前後に送るボタン（表示窓にマウスを乗せると出る） */
-  .nav-btn { position: absolute; top: 50%; transform: translateY(-50%); width: 44px; height: 64px; border: none;
-             border-radius: 10px; background: rgba(20,22,28,.6); color: #fff; font-size: 30px; line-height: 1;
-             cursor: pointer; opacity: 0; transition: opacity .2s; }
-  .nav-btn.prev { left: 10px; }
-  .nav-btn.next { right: 10px; }
-  .viewer:hover .nav-btn { opacity: .85; }
-  .viewer.no-image .nav-btn { display: none; }
-
-  .toolbar { position: absolute; top: 10px; right: 10px; max-width: calc(100% - 20px); display: flex; flex-wrap: wrap;
-             justify-content: flex-end; gap: 2px; align-items: center;
-             background: rgba(20,22,28,.72); border-radius: 10px; padding: 4px; color: #fff; }
-  .toolbar button, .toolbar select {
-    background: none; border: none; color: #d8dce4; font: inherit; font-size: 13px; padding: 5px 9px;
-    border-radius: 7px; cursor: pointer; }
-  .toolbar select { color-scheme: dark; }
-  .toolbar button:hover { background: rgba(255,255,255,.12); color: #fff; }
-  .toolbar button.on { background: var(--work); color: #fff; }
-  .toolbar .tsep { width: 1px; height: 18px; background: rgba(255,255,255,.2); margin: 0 4px; }
-  /* 道具を閉じたときは、開くボタンだけを残す */
-  .toolbar.collapsed > :not(#tbToggle) { display: none; }
-  .toolbar #tbToggle { font-size: 15px; padding: 3px 9px; }
-  .zoomval { font-size: 12px; color: #aab1bd; min-width: 42px; text-align: center; font-variant-numeric: tabular-nums; }
-
-  /* 全画面のときだけ出す、小さな時間表示 */
-  .hud { position: absolute; top: 10px; left: 10px; display: none; align-items: center; gap: 10px;
-         background: rgba(20,22,28,.72); color: #fff; border-radius: 10px; padding: 6px 12px; pointer-events: none; }
-  .viewer:fullscreen .hud { display: flex; }
-  .hud .dot { width: 10px; height: 10px; border-radius: 50%; }
-  .hud .hud-time { font-size: 22px; font-variant-numeric: tabular-nums; }
-  .hud .hud-sub { font-size: 12px; color: #aab1bd; }
-
-  .strip-bar { display: flex; align-items: center; gap: 6px; padding: 6px 10px; border-top: 1px solid var(--line);
-               background: var(--panel); flex-wrap: wrap; }
-  .strip-bar .count { font-size: 12px; color: var(--sub); margin-right: 4px; }
-  .strip-toggle { font-weight: 600; }
-  /* ボタンのアイコン：文字と同じ色の細い線で描く（形は SVG をマスクに使う） */
-  [data-pick]::before, #shuffleBtn::before {
-    content: ''; display: inline-block; width: 15px; height: 15px; margin-right: 6px; vertical-align: -3px;
-    background: currentColor; -webkit-mask: var(--icon) no-repeat center / contain; mask: var(--icon) no-repeat center / contain;
-  }
-  [data-pick="dir"] { --icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z'/%3E%3C/svg%3E"); }
-  [data-pick="files"] { --icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='4' width='18' height='16' rx='2'/%3E%3Ccircle cx='9' cy='10' r='1.5'/%3E%3Cpath d='M3 17l5-5 4 4 3-3 6 6'/%3E%3C/svg%3E"); }
-  #shuffleBtn { --icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 7h3c4 0 6 10 10 10h4M3 17h3c1.6 0 2.8-1.6 3.8-3.6M14.2 9.6C15 8 15.8 7 17 7h3M17 4l3 3-3 3M17 14l3 3-3 3'/%3E%3C/svg%3E"); }
-  /* 画像の一覧を閉じたときは、ボタンの行だけを残す */
-  .strip-wrap.closed .strip, .strip-wrap.closed .set-tabs,
-  .strip-wrap.closed .strip-bar > :not(.strip-toggle):not(.count) { display: none; }
-  .strip-bar .grow { flex: 1; }
-  .urlbox { display: flex; gap: 4px; }
-  .urlbox input { width: 200px; font: inherit; font-size: 13px; color: var(--text); background: var(--bg);
-                  border: 1px solid var(--line); border-radius: 6px; padding: 4px 8px; }
-  .star-only { display: flex; align-items: center; gap: 5px; font-size: 13px; color: var(--sub); cursor: pointer; margin-right: 4px; }
-  .star-only input { accent-color: var(--work); }
-
-  /* セットのタブ */
-  .set-tabs { display: flex; gap: 5px; padding: 4px 10px 0; background: var(--panel); flex-wrap: wrap; align-items: center; }
-  .set-tab { font: inherit; font-size: 12px; border: 1px solid var(--line); background: var(--bg); color: var(--sub);
-             border-radius: 999px; padding: 3px 11px; cursor: pointer; }
-  .set-tab.on { background: var(--work); border-color: var(--work); color: #fff; }
-  .set-tab.drop { outline: 2px solid var(--rest); outline-offset: 1px; }
-  .set-tab:disabled, .set-act:disabled { opacity: .5; cursor: default; }
-  .set-act { font-size: 12px; padding: 3px 6px; }
-
-  /* 画像の一覧：高さはドラッグで変えられる。広げると、サムネイルが複数段に並ぶ */
-  .strip { display: flex; flex-wrap: wrap; align-content: flex-start; gap: 8px; padding: 8px 10px 10px;
-           overflow-y: auto; background: var(--panel); height: var(--strip-h, 104px); }
-  .strip-resize { height: 7px; margin-bottom: -7px; position: relative; z-index: 2; cursor: ns-resize; touch-action: none; }
-  .strip-resize::after { content: ''; display: block; width: 44px; height: 3px; margin: 2px auto 0; border-radius: 2px;
-                         background: var(--line); }
-  .strip-resize:hover::after, .strip-resize.dragging::after { background: var(--sub); }
-  .strip-wrap.closed .strip-resize { display: none; }
-  .strip .none { font-size: 12px; color: var(--sub); align-self: center; }
-  .thumb { position: relative; flex: 0 0 auto; width: 84px; height: 84px; border-radius: 8px; overflow: hidden;
-           border: 2px solid transparent; background: var(--bg); cursor: pointer; }
-  .thumb img { width: 100%; height: 100%; object-fit: cover; display: block; pointer-events: none; }
-  .thumb.cur { border-color: var(--work); }
-  .thumb .num { position: absolute; left: 4px; top: 4px; font-size: 11px; background: rgba(0,0,0,.6); color: #fff;
-                border-radius: 4px; padding: 0 5px; }
-  .thumb .del, .thumb .star, .thumb .skip {
-    position: absolute; width: 22px; height: 22px; border: none; border-radius: 50%; background: rgba(0,0,0,.65);
-    color: #fff; font-size: 12px; line-height: 22px; padding: 0; cursor: pointer; display: none; }
-  .thumb .del { right: 3px; top: 3px; }
-  .thumb .star { left: 3px; bottom: 3px; }
-  .thumb .skip { right: 3px; bottom: 3px; }
-  .thumb:hover .del, .thumb:hover .star, .thumb:hover .skip,
-  .thumb.starred .star, .thumb.skipped .skip { display: block; }
-  .thumb.starred .star { color: #ffd23f; }
-  .thumb.skipped img { opacity: .3; }
-  .thumb.skipped .skip { background: rgba(200,60,60,.9); }
-  .thumb.dim img { opacity: .4; }
-  .thumb .bad { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
-                font-size: 11px; color: #fff; background: rgba(160,40,40,.75); text-align: center; padding: 4px; }
-  .thumb.drop-before { box-shadow: -5px 0 0 -1px var(--rest); }
-  .thumb.drop-after { box-shadow: 5px 0 0 -1px var(--rest); }
-  .thumb.dragging { opacity: .4; }
-
-  /* ---- 右：タイマーと設定 ---- */
-  .side { height: 100vh; overflow-y: auto; padding: 18px 16px 24px; display: flex; flex-direction: column; gap: 16px;
-          border-left: 1px solid var(--line); }
-  .ring-wrap { position: relative; width: 220px; height: 220px; margin: 0 auto; touch-action: none; flex: 0 0 auto; }
+  .ring-wrap { position: relative; width: 300px; height: 300px; margin: 0 auto; touch-action: none; }
   .ring-wrap svg { width: 100%; height: 100%; transform: rotate(-90deg); overflow: visible; }
   .ring-wrap.active .track, .ring-wrap.active .bar { cursor: pointer; }
   .track { fill: none; stroke: var(--track); stroke-width: 16; }
-  .bar { fill: none; stroke: var(--work); stroke-width: 16; stroke-linecap: round; transition: stroke .3s; }
+  .bar { fill: none; stroke: var(--work); stroke-width: 16; stroke-linecap: round;
+         transition: stroke .3s; }
   .ring-wrap.dragging .bar { transition: none; }
   /* つまみ（バーの端の丸）は、計測中でロックを解除しているときだけ、ふわっと出す */
   .knob { fill: var(--panel); stroke: var(--work); stroke-width: 3; opacity: 0; transition: opacity .2s; pointer-events: none; }
   .ring-wrap.active:not(.ring-locked) .knob { opacity: 1; }
-  .center { position: absolute; inset: 30px; display: flex; flex-direction: column;
-            align-items: center; justify-content: center; gap: 4px; pointer-events: none; text-align: center; }
-  .phase { font-size: 14px; font-weight: 600; letter-spacing: .05em; color: var(--work); white-space: pre-line; line-height: 1.3; }
-  .time { font-size: 42px; font-weight: 300; font-variant-numeric: tabular-nums; }
-  .round { font-size: 13px; color: var(--sub); }
+  .center { position: absolute; inset: 40px; display: flex; flex-direction: column;
+            align-items: center; justify-content: center; gap: 6px; pointer-events: none; }
+  .phase { font-size: 15px; font-weight: 600; letter-spacing: .05em; color: var(--work); }
+  .time { font-size: 54px; font-weight: 300; font-variant-numeric: tabular-nums; }
+  .round { font-size: 14px; color: var(--sub); }
 
-  .controls { display: flex; gap: 8px; justify-content: center; }
+  .controls { display: flex; gap: 10px; justify-content: center; }
   .controls button {
-    flex: 1; max-width: 110px; padding: 10px 0; font-size: 15px; font-weight: 600;
+    flex: 1; max-width: 130px; padding: 12px 0; font-size: 16px; font-weight: 600;
     border-radius: 999px; border: 1px solid var(--line); cursor: pointer;
-    background: var(--panel); color: var(--text); font-family: inherit;
+    background: var(--panel); color: var(--text);
   }
   .controls button.primary { background: var(--btn); color: var(--btn-text); border-color: var(--btn); }
   .controls button:disabled { opacity: .4; cursor: default; }
 
-  /* 1段目：先頭へ・スキップ、2段目：◀ N 秒 ▶（どちらも中央揃え） */
-  .sub-controls { display: flex; flex-direction: column; align-items: center; gap: 2px; margin-top: -8px; }
-  .sub-row { display: flex; align-items: stretch; justify-content: center; }
+  /* 控えめな操作（時間送り・スキップ） */
+  .sub-controls { display: flex; gap: 4px; justify-content: center; margin-top: -8px; }
   .sub-controls.hidden { visibility: hidden; }
   .ghost {
     background: none; border: none; color: var(--sub); font-size: 13px; padding: 4px 8px;
     border-radius: 6px; cursor: pointer; font-family: inherit;
   }
   .ghost:hover { background: var(--panel); color: var(--text); }
-  .strip-bar .ghost:hover, .set-tabs .ghost:hover { background: var(--bg); }
-  .sep { width: 1px; background: var(--line); margin: 4px 4px; }
+  .sep { width: 1px; background: var(--line); margin: 4px 6px; }
   .seek { display: flex; align-items: center; gap: 2px; }
   .seek input, .seek select {
     font: inherit; font-size: 13px; color: var(--text); background: var(--panel);
     border: 1px solid var(--line); border-radius: 6px; padding: 2px 4px;
   }
-  .seek input { width: 44px; text-align: center; font-variant-numeric: tabular-nums; }
+  .seek input { width: 48px; text-align: center; font-variant-numeric: tabular-nums; }
 
   .panel { background: var(--panel); border: 1px solid var(--line); border-radius: 16px;
-           padding: 14px; display: flex; flex-direction: column; gap: 12px; }
+           padding: 16px; display: flex; flex-direction: column; gap: 14px; }
   .panel-title { font-size: 12px; font-weight: 600; color: var(--sub); letter-spacing: .05em; margin-bottom: -4px; }
-  fieldset.plain { border: none; margin: 0; padding: 0; min-width: 0; display: flex; flex-direction: column; gap: 10px; }
-  fieldset.plain:disabled { opacity: .5; }
-  .row { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
-  .label { font-size: 13px; font-weight: 600; display: flex; align-items: center; gap: 6px; white-space: nowrap; }
-  .dot { width: 10px; height: 10px; border-radius: 50%; flex: 0 0 auto; }
-  .hms { display: flex; align-items: center; gap: 3px; }
+  .panel.locked .hms input { opacity: .5; }
+  .row { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+  .label { font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 8px; white-space: nowrap; }
+  .dot { width: 10px; height: 10px; border-radius: 50%; }
+  .hms { display: flex; align-items: center; gap: 4px; }
   .hms input, .num {
-    width: 40px; padding: 5px 2px; text-align: center; font-size: 14px; font-family: inherit;
-    border: 1px solid var(--line); border-radius: 7px; background: var(--bg); color: var(--text);
+    width: 52px; padding: 6px 4px; text-align: center; font-size: 16px;
+    border: 1px solid var(--line); border-radius: 8px; background: var(--bg); color: var(--text);
     font-variant-numeric: tabular-nums;
   }
-  .hms span { font-size: 11px; color: var(--sub); margin-right: 2px; }
+  .hms span { font-size: 12px; color: var(--sub); margin-right: 4px; }
   /* 念のため：項目名が長くて入りきらないときは、数字の欄ではなく項目名の文字を「…」で詰める
-     （iPhone の日本語の文字は幅が広く、数字の欄が枠からはみ出すことがあるため） */
+     （iPhone の日本語の文字は幅が広く、「インターバル ⓘ」の行で「秒」が枠からはみ出していたため） */
   .row > .label { min-width: 0; }
   .row > .label > [data-i18n] { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
   .row > .label > .dot, .row > .label > .info, .row > .hms { flex: 0 0 auto; }
-  .steps { display: flex; flex-direction: column; gap: 6px; }
-  .step { display: flex; align-items: center; gap: 4px; }
-  .step .hms input, .step .num { width: 36px; }
-  .step .no { font-size: 12px; color: var(--sub); width: 16px; text-align: right; flex: 0 0 auto; }
-  .step .x { font-size: 12px; color: var(--sub); }
-  .step .rm { margin-left: auto; padding: 2px 6px; }
-  .total { font-size: 12px; color: var(--sub); }
+  /* スマホ幅：入力欄・すき間・余白を少しずつ詰めて、1行に収まるようにする */
+  @media (max-width: 420px) {
+    .panel { padding: 14px; }
+    .label { gap: 6px; }
+    .hms { gap: 2px; }
+    .hms input, .num { width: 38px; font-size: 15px; }
+    .hms span { margin-right: 1px; }
+  }
+  /* さらに狭い画面：余白と入力欄を詰める。それでも入らなければ折り返す */
+  @media (max-width: 360px) {
+    body { padding-left: 10px; padding-right: 10px; }
+    .panel { padding: 12px; }
+    .hms input, .num { width: 36px; }
+    .volume input { width: 72px; }
+    .row { flex-wrap: wrap; row-gap: 6px; }
+    .row > .label { min-width: auto; }   /* ここでは「…」で詰めずに、2行に折り返す */
+    .row > .hms, .row > .volume { margin-left: auto; }
+  }
   .hint { font-size: 12px; color: var(--sub); }
-  .switch { display: flex; align-items: center; gap: 8px; font-size: 13px; cursor: pointer; }
-  .switch input { width: 17px; height: 17px; accent-color: var(--work); }
+  .switch { display: flex; align-items: center; gap: 8px; font-size: 14px; cursor: pointer; }
+  .switch input { width: 18px; height: 18px; accent-color: var(--work); }
   .volume { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--sub); }
-  .volume input { width: 90px; accent-color: var(--work); cursor: pointer; }
+  .volume input { width: 100px; accent-color: var(--work); cursor: pointer; }
   .volume #volumeVal { width: 34px; text-align: right; font-variant-numeric: tabular-nums; }
   .volume.off, .sound-row.off, .warn-row.off { opacity: .4; }
+  .warn-row { justify-content: flex-start; margin-top: -6px; }
   .warn-row .num { width: 40px; margin: 0 4px; }
-  .warn-row { justify-content: flex-start; }
+  .total { font-size: 12px; color: var(--sub); margin-top: -4px; }
   /* ⓘ マーク：マウスを乗せる（またはキーで選ぶ）と、説明の吹き出しを出す */
   .info { position: relative; display: inline-flex; align-items: center; justify-content: center; flex: 0 0 auto;
           width: 17px; height: 17px; border: 1px solid var(--sub); border-radius: 50%; color: var(--sub);
@@ -316,22 +179,13 @@
   .info.open-right .tip { transform: translateX(-15%); }
   .info.open-right .tip::after { left: calc(15% - var(--dx, 0px)); }
   .label .info { margin-left: 2px; }
-  .volume select, #restShow {
+  .volume select {
     font: inherit; font-size: 13px; color: var(--text); background: var(--panel);
     border: 1px solid var(--line); border-radius: 6px; padding: 2px 4px; cursor: pointer;
   }
-  /* チェンジ中の画像（チェンジの行の補足なので、少し字下げして小さめに） */
-  .rest-show-row { padding-left: 14px; font-size: 13px; color: var(--sub); }
-  .rest-show-row.off { opacity: .45; }
   .sound-row { margin-top: -6px; }
-  .btn-sm {
-    font: inherit; font-size: 13px; color: var(--text); background: var(--panel); cursor: pointer;
-    border: 1px solid var(--line); border-radius: 8px; padding: 6px 12px;
-  }
-  .btn-sm:hover { border-color: var(--sub); }
-  .btn-sm:disabled { opacity: .5; cursor: default; }
 
-  /* お気に入り（練習メニュー） */
+  /* お気に入り */
   .favs { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
   .chip {
     display: inline-flex; align-items: center; border: 1px solid var(--line); border-radius: 999px;
@@ -340,7 +194,7 @@
   .chip button { background: none; border: none; color: inherit; font: inherit; cursor: pointer; padding: 4px 4px 4px 10px; }
   .chip button.del { padding: 4px 8px 4px 4px; opacity: .6; }
   .chip button:hover { color: var(--text); opacity: 1; }
-  /* 計測中は、呼び出しのボタンだけ押せない（保存と削除はできる） */
+  /* 計測中は、呼び出しのボタンだけ押せない（登録と削除はできる） */
   .chip button:disabled { opacity: .45; cursor: default; }
   .fav-form { display: inline-flex; align-items: center; gap: 4px; flex-wrap: wrap; }
   /* 削除の確認：ボタンは折り返さない。幅が足りないときは、文とボタンを2行に分ける */
@@ -352,10 +206,10 @@
   .fav-form input { font: inherit; font-size: 13px; width: 170px; max-width: 100%; padding: 4px 8px;
                     border: 1px solid var(--line); border-radius: 8px; background: var(--bg); color: var(--text); }
 
-  /* 色の設定・バックアップ（折りたたみ） */
+  /* 色の設定 */
   details { font-size: 13px; color: var(--sub); }
   summary { cursor: pointer; padding: 2px 4px; width: fit-content; }
-  .colors { display: flex; gap: 14px; align-items: center; flex-wrap: wrap; padding: 10px 4px 0; }
+  .colors { display: flex; gap: 16px; align-items: center; flex-wrap: wrap; padding: 10px 4px 0; }
   .colors label { display: flex; align-items: center; gap: 6px; }
   .colors select {
     font: inherit; font-size: 13px; color: var(--text); background: var(--panel);
@@ -368,9 +222,8 @@
     .colors input[type=color] { width: 44px; height: 44px; border-radius: 10px; }
     .colors label { min-height: 44px; }
   }
-  .backup { display: flex; flex-direction: column; gap: 8px; padding: 10px 4px 0; }
-  .backup .btns { display: flex; gap: 8px; flex-wrap: wrap; }
 
+  /* 下部（キー操作・言語） */
   .footer { display: flex; justify-content: space-between; align-items: center; margin-top: -8px; }
   .footer select {
     font: inherit; font-size: 13px; color: var(--sub); background: none;
@@ -381,7 +234,7 @@
   .logo svg { overflow: visible; }
   .logo text { font-family: "Segoe UI", -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
                font-size: 48px; font-weight: 600; fill: var(--text); letter-spacing: -1px; }
-  .logo text.logo-sub { font-size: 13px; font-weight: 400; fill: var(--sub); letter-spacing: 3px; }
+  .logo text.logo-sub { font-size: 15px; font-weight: 400; fill: var(--sub); letter-spacing: 4.5px; }
   .logo .hole { fill: transparent; }
   .logo-track { fill: none; stroke: var(--logo-track); }
   .logo-arc { fill: none; stroke-linecap: round; }
@@ -389,10 +242,10 @@
 
   /* キー操作の一覧 */
   .modal { position: fixed; inset: 0; background: rgba(0,0,0,.45); display: flex;
-           align-items: center; justify-content: center; padding: 16px; z-index: 10; }
+           align-items: center; justify-content: center; padding: 16px; }
   .modal.hidden { display: none; }
-  .modal-box { background: var(--panel); border: 1px solid var(--line); border-radius: 16px; max-height: 90vh; overflow-y: auto;
-               padding: 20px; width: 100%; max-width: 460px; display: flex; flex-direction: column; gap: 12px; }
+  .modal-box { background: var(--panel); border: 1px solid var(--line); border-radius: 16px;
+               padding: 20px; width: 100%; max-width: 380px; display: flex; flex-direction: column; gap: 12px; }
   .modal-title { font-weight: 600; }
   .modal table { border-collapse: collapse; font-size: 14px; }
   .modal td { padding: 5px 4px; border-bottom: 1px solid var(--line); }
@@ -400,25 +253,6 @@
   kbd { font-family: inherit; font-size: 12px; border: 1px solid var(--line); border-bottom-width: 2px;
         border-radius: 5px; padding: 1px 6px; background: var(--bg); }
   .modal-box .ghost { align-self: flex-end; }
-  /* ページの中のお知らせ・確認（ブラウザのダイアログの代わり） */
-  .toast { position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%); z-index: 50;
-           width: max-content; max-width: calc(100vw - 32px); padding: 10px 16px; border-radius: 10px;
-           background: var(--pop); color: var(--text); border: 1px solid var(--pop-line);
-           font-size: 13px; line-height: 1.5; white-space: pre-line;
-           box-shadow: 0 6px 18px rgba(0,0,0,.3); }
-  .toast.undo-toast { display: flex; align-items: center; gap: 14px; }
-  .toast .undo-btn { font: inherit; font-weight: 600; color: inherit; background: none; border: none;
-                     padding: 4px 2px; cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }
-  .ui-dialog .modal-box { max-width: 400px; }
-  .ui-dialog .ui-title { font-size: 15px; font-weight: 700; }
-  .ui-dialog .ui-msg { font-size: 14px; line-height: 1.6; white-space: pre-line; }
-  .ui-dialog .ui-note { font-size: 12.5px; line-height: 1.6; color: var(--sub); }
-  .ui-dialog .ui-input { font: inherit; font-size: 15px; padding: 6px 10px; border: 1px solid var(--line);
-                         border-radius: 8px; background: var(--bg); color: var(--text); }
-  .ui-dialog .ui-btns { display: flex; justify-content: flex-end; gap: 8px; }
-  .ui-dialog .ui-btns .ghost { align-self: auto; }
-  .ui-dialog .ui-ok { color: var(--text); font-weight: 600; }
-  .ui-dialog .ui-ok.danger { color: #e5534b; }
   /* 数字入力の上下の三角（スピンボタン）を出さない。増減はキーボードの↑↓でできる */
   input[type=number] { -moz-appearance: textfield; appearance: textfield; }
   input[type=number]::-webkit-inner-spin-button,
@@ -426,6 +260,11 @@
   /* ボタンのアイコン：⏮ ▶ などの記号は端末によって見た目が変わる（iPhone では青い四角の絵文字になる）ので、
      文字と同じ色の細い線で描く。ic はアイコンを文字の前に、ic-after は文字の後ろに付ける */
   .icon-btn { display: inline-flex; align-items: center; justify-content: center; gap: 5px; white-space: nowrap; }
+  /* スマホの幅では1行に入らないので、先頭へ・スキップは、どちらもアイコンが上・文字が下にそろえる */
+  @media (max-width: 480px) {
+    #restartBtn, #skipBtn { flex-direction: column; gap: 3px; }
+    #skipBtn::after { order: -1; }
+  }
   .ic::before, .ic-after::after {
     content: ''; display: inline-block; flex: 0 0 auto; width: 14px; height: 14px; background: currentColor;
     -webkit-mask: var(--icon) no-repeat center / contain; mask: var(--icon) no-repeat center / contain;
@@ -466,106 +305,9 @@
 </style>
 </head>
 <body>
-<!-- シルエット表示（白と黒の2色）と、明暗の3段階表示に使うフィルター -->
-<svg width="0" height="0" style="position:absolute" aria-hidden="true">
-  <filter id="fSil" color-interpolation-filters="sRGB">
-    <feColorMatrix type="matrix" values="0.299 0.587 0.114 0 0  0.299 0.587 0.114 0 0  0.299 0.587 0.114 0 0  0 0 0 1 0"/>
-    <feComponentTransfer>
-      <feFuncR type="discrete" tableValues="0 1"/><feFuncG type="discrete" tableValues="0 1"/><feFuncB type="discrete" tableValues="0 1"/>
-    </feComponentTransfer>
-  </filter>
-  <filter id="fThree" color-interpolation-filters="sRGB">
-    <feColorMatrix type="matrix" values="0.299 0.587 0.114 0 0  0.299 0.587 0.114 0 0  0.299 0.587 0.114 0 0  0 0 0 1 0"/>
-    <feComponentTransfer>
-      <feFuncR type="discrete" tableValues="0 0.5 1"/><feFuncG type="discrete" tableValues="0 0.5 1"/><feFuncB type="discrete" tableValues="0 0.5 1"/>
-    </feComponentTransfer>
-  </filter>
-</svg>
-
-<section class="stage-col">
-  <div class="viewer" id="viewer">
-    <div class="frame" id="frame">
-      <img id="img" alt="">
-      <div class="grid-ov" id="gridOv"></div>
-    </div>
-    <div class="empty" id="empty">
-      <div class="big" data-i18n="emptyTitle"></div>
-      <div data-i18n="emptyText"></div>
-      <div class="btns">
-        <button class="btn-sm" data-pick="dir" data-i18n="addFolder"></button>
-        <button class="btn-sm" data-pick="files" data-i18n="addFiles"></button>
-      </div>
-      <div class="notice" data-i18n="rightsNotice"></div>
-    </div>
-    <button class="nav-btn prev" id="prevImg" data-i18n-title="prevImgTip">‹</button>
-    <button class="nav-btn next" id="nextImg" data-i18n-title="nextImgTip">›</button>
-    <div class="overlay" id="readyOv">
-      <div class="ov-title" data-i18n="getReady"></div>
-      <div class="ov-count" id="readyCount"></div>
-    </div>
-    <div class="overlay" id="restOv">
-      <div class="ov-title" data-i18n="phaseRest"></div>
-      <div class="ov-time" id="restTime"></div>
-      <div class="ov-sub" id="restSub"></div>
-    </div>
-    <div class="overlay review" id="doneOv">
-      <div class="ov-title" data-i18n="done"></div>
-      <div class="ov-sub" id="doneSub"></div>
-      <div class="ov-sub" data-i18n="reviewHint"></div>
-      <div class="review-grid" id="reviewGrid"></div>
-      <button class="ov-btn" id="reviewClose" data-i18n="close"></button>
-    </div>
-    <button class="ov-btn review-btn" id="reviewOpen" data-i18n="reviewOpen"></button>
-    <div class="dropzone" data-i18n="dropHere"></div>
-    <div class="hud" id="hud"><span class="dot" id="hudDot"></span><span class="hud-time" id="hudTime"></span><span class="hud-sub" id="hudSub"></span></div>
-    <div class="toolbar" id="toolbar">
-      <!-- 形を見る道具 ｜ 色・明暗を変える道具（変化が弱い順） ｜ 拡大縮小 ｜ 全画面 -->
-      <button id="flipBtn" data-i18n="flip" data-i18n-title="flipTip"></button>
-      <select id="gridSel" data-i18n-title="gridTip">
-        <option value="0" data-i18n="gridOff"></option>
-        <option value="2">2×2</option>
-        <option value="3">3×3</option>
-        <option value="4">4×4</option>
-      </select>
-      <span class="tsep"></span>
-      <button id="bwBtn" data-i18n="bw" data-i18n-title="bwTip"></button>
-      <button id="contrastBtn" data-i18n="contrast" data-i18n-title="contrastTip"></button>
-      <button id="threeBtn" data-i18n="three" data-i18n-title="threeTip"></button>
-      <button id="silBtn" data-i18n="silhouette" data-i18n-title="silTip"></button>
-      <span class="tsep"></span>
-      <button id="zoomOut" data-i18n-title="zoomOutTip">−</button>
-      <span class="zoomval" id="zoomVal">100%</span>
-      <button id="zoomIn" data-i18n-title="zoomInTip">＋</button>
-      <button id="zoomFit" data-i18n="fit" data-i18n-title="fitTip"></button>
-      <span class="tsep"></span>
-      <button class="icon-btn ic ic-fullscreen" id="fsBtn" data-i18n="fullscreen" data-i18n-title="fullscreenTip"></button>
-      <button id="tbToggle"></button>
-    </div>
-  </div>
-  <div class="strip-wrap" id="stripWrap">
-  <div class="strip-resize" id="stripResize" data-i18n-title="stripResizeTip"></div>
-  <div class="strip-bar">
-    <button class="ghost strip-toggle" id="stripToggle"></button>
-    <span class="count" id="imgCount"></span>
-    <button class="ghost" data-pick="dir" data-i18n="addFolder"></button>
-    <button class="ghost" data-pick="files" data-i18n="addFiles"></button>
-    <div class="urlbox">
-      <input type="text" id="urlInput" data-i18n-ph="urlPh">
-      <button class="ghost" id="urlAdd" data-i18n="urlAdd"></button>
-    </div>
-    <span class="grow"></span>
-    <label class="star-only" data-i18n-title="starOnlyTip"><input type="checkbox" id="starOnly"><span data-i18n="starOnly"></span></label>
-    <button class="ghost" id="shuffleBtn" data-i18n="shuffle" data-i18n-title="shuffleTip"></button>
-  </div>
-  <div class="set-tabs" id="setTabs"></div>
-  <div class="strip" id="strip"></div>
-  </div>
-  <input type="file" id="dirInput" webkitdirectory multiple hidden>
-  <input type="file" id="fileInput" accept="image/*" multiple hidden>
-  <input type="file" id="importInput" accept=".json,application/json" hidden>
-</section>
-
-<aside class="side" id="side">
+<div class="app">
+  <div class="stage" id="stage">
+  <button class="ghost fs-exit" id="fsExit" data-i18n="fsExit"></button>
   <div class="ring-wrap" id="ring">
     <svg viewBox="0 0 200 200">
       <circle class="track" cx="100" cy="100" r="88"/>
@@ -589,11 +331,8 @@
   </div>
 
   <div class="sub-controls hidden" id="subControls">
-    <div class="sub-row">
-      <button class="ghost icon-btn ic ic-restart" id="restartBtn" data-i18n="restart" data-i18n-title="restartTip"></button>
-      <span class="sep"></span>
-      <button class="ghost icon-btn ic-after ic-skip" id="skipBtn" data-i18n="skip" data-i18n-title="skipTip"></button>
-    </div>
+    <button class="ghost icon-btn ic ic-restart" id="restartBtn" data-i18n="restart" data-i18n-title="restartTip"></button>
+    <span class="sep"></span>
     <div class="seek">
       <button class="ghost icon-btn ic ic-back" data-dir="-1" data-i18n-title="backTip"></button>
       <input type="number" inputmode="numeric" min="1" max="999" id="seekAmount">
@@ -604,37 +343,39 @@
       </select>
       <button class="ghost icon-btn ic ic-fwd" data-dir="1" data-i18n-title="fwdTip"></button>
     </div>
+    <span class="sep"></span>
+    <button class="ghost icon-btn ic-after ic-skip" id="skipBtn" data-i18n="skip" data-i18n-title="skipTip"></button>
+  </div>
   </div>
 
   <div class="panel" id="panel">
-    <div class="panel-title" data-i18n="menuPanel"></div>
-    <!-- お気に入りは、計測中も登録・削除できるように、計測中に止める部分（menuSet）の外に置く -->
+    <div class="panel-title" data-i18n="timePanel"></div>
     <div class="favs" id="favs"></div>
-    <fieldset class="plain" id="menuSet">
-      <div class="label"><span class="dot" style="background:var(--work)"></span><span data-i18n="stepsLabel"></span><span class="info" tabindex="0">i<span class="tip" role="tooltip" data-i18n="tipSteps"></span></span></div>
-      <div class="steps" id="steps"></div>
-      <div><button type="button" class="ghost" id="addStep" data-i18n="addStep"></button></div>
-      <div class="row">
-        <div class="label"><span class="dot" style="background:var(--rest)"></span><span data-i18n="rest"></span><span class="info open-right" tabindex="0">i<span class="tip" role="tooltip" data-i18n="tipRest"></span></span></div>
-        <div class="hms" data-key="rest">
-          <input type="number" inputmode="numeric" min="0" max="99" data-u="h"><span data-i18n="h"></span>
-          <input type="number" inputmode="numeric" min="0" max="59" data-u="m"><span data-i18n="m"></span>
-          <input type="number" inputmode="numeric" min="0" max="59" data-u="s"><span data-i18n="s"></span>
-        </div>
+    <div class="row">
+      <div class="label"><span class="dot" style="background:var(--work)"></span><span data-i18n="work"></span></div>
+      <div class="hms" data-key="work">
+        <input type="number" inputmode="numeric" min="0" max="99" data-u="h"><span data-i18n="h"></span>
+        <input type="number" inputmode="numeric" min="0" max="59" data-u="m"><span data-i18n="m"></span>
+        <input type="number" inputmode="numeric" min="0" max="59" data-u="s"><span data-i18n="s"></span>
       </div>
-      <div class="row rest-show-row">
-        <label class="volume" for="restShow"><span data-i18n="restShow"></span></label>
-        <select id="restShow">
-          <option value="prev" data-i18n="restShowPrev"></option>
-          <option value="next" data-i18n="restShowNext"></option>
-        </select>
+    </div>
+    <div class="row">
+      <div class="label"><span class="dot" style="background:var(--rest)"></span><span data-i18n="rest"></span><span class="info open-right" tabindex="0">i<span class="tip" role="tooltip" data-i18n="tipRest"></span></span></div>
+      <div class="hms" data-key="rest">
+        <input type="number" inputmode="numeric" min="0" max="99" data-u="h"><span data-i18n="h"></span>
+        <input type="number" inputmode="numeric" min="0" max="59" data-u="m"><span data-i18n="m"></span>
+        <input type="number" inputmode="numeric" min="0" max="59" data-u="s"><span data-i18n="s"></span>
       </div>
-      <div class="row">
-        <div class="label"><span class="dot" style="background:var(--sub)"></span><span data-i18n="countdown"></span><span class="info" tabindex="0">i<span class="tip" role="tooltip" data-i18n="tipCountdown"></span></span></div>
-        <div class="hms"><input class="num" type="number" inputmode="numeric" min="0" max="10" id="countdown"><span data-i18n="s"></span></div>
-      </div>
-      <div class="total" id="total"></div>
-    </fieldset>
+    </div>
+    <div class="row">
+      <div class="label"><span data-i18n="repeat"></span><span class="info open-right" tabindex="0">i<span class="tip" role="tooltip" data-i18n="tipRepeat"></span></span></div>
+      <div class="hms"><input class="num" type="number" inputmode="numeric" min="0" max="999" id="repeat"><span data-i18n="times"></span></div>
+    </div>
+    <div class="row">
+      <div class="label"><span class="dot" style="background:var(--sub)"></span><span data-i18n="countdown"></span><span class="info open-right" tabindex="0">i<span class="tip" role="tooltip" data-i18n="tipCountdown"></span></span></div>
+      <div class="hms"><input class="num" type="number" inputmode="numeric" min="0" max="10" id="countdown"><span data-i18n="s"></span></div>
+    </div>
+    <div class="total" id="total"></div>
   </div>
 
   <div class="panel" id="soundPanel">
@@ -682,33 +423,25 @@
     </div>
   </details>
 
-  <details>
-    <summary data-i18n="backup"></summary>
-    <div class="backup">
-      <div class="hint" data-i18n="backupHint"></div>
-      <div class="btns">
-        <button class="btn-sm" id="exportBtn" data-i18n="exportBtn"></button>
-        <button class="btn-sm" id="importBtn" data-i18n="importBtn"></button>
-      </div>
-    </div>
-  </details>
-
   <div class="footer">
-    <button class="ghost" id="helpBtn" data-i18n="keysLink"></button>
+    <div>
+      <button class="ghost" id="helpBtn" data-i18n="keysLink"></button>
+      <button class="ghost icon-btn ic ic-fullscreen" id="fsBtn" data-i18n="fullscreen" data-i18n-title="fullscreenTip"></button>
+    </div>
     <select id="langSel" aria-label="Language">
       <option value="ja">日本語</option>
       <option value="en">English</option>
     </select>
   </div>
   <div class="logo">
-    <svg id="logoSvg" lang="en" role="img" aria-label="IntervaLoop for Artists">
+    <svg id="logoSvg" lang="en" role="img" aria-label="IntervaLoop Timer">
       <text x="0" y="48">Interva<tspan>L</tspan><tspan class="hole">o</tspan><tspan class="hole">o</tspan>p</text>
       <g class="logo-rings"></g>
-      <text class="logo-sub" y="80" text-anchor="middle">FOR ARTISTS</text>
+      <text class="logo-sub" y="80" text-anchor="middle">TIMER</text>
     </svg>
   </div>
   <div class="credit" data-i18n="credit"></div>
-</aside>
+</div>
 
 <div class="modal hidden" id="help">
   <div class="modal-box">
@@ -726,23 +459,12 @@ const R = 88, CIRC = 2 * Math.PI * R;
 bar.style.strokeDasharray = CIRC;
 
 // ---- 設定 ----
-const STORE_KEY = 'intervaLoopArtists';
-// テーマカラー：インディゴ（ポーズ）× ゴールド（チェンジ）、終了はミント
-const defaultColors = { work: '#6c7cff', rest: '#f2b84b', done: '#4fd1a5' };
-const oldDefaultColors = { work: '#ff7a45', rest: '#3aa5ff', done: '#34c07a' };   // 前の版の初期色
-const defaultSteps = [{ work: 30, count: 10 }, { work: 60, count: 5 }, { work: 120, count: 3 }, { work: 300, count: 2 }];
-const defaults = {
-  steps: defaultSteps, rest: 5, restShow: 'prev', countdown: 3, ringLock: true, se: true, volume: 70, sound: 'simple', warnSound: true, warnSec: 5, toolbarOpen: true, stripH: 104,
-  colors: { ...defaultColors }, favorites: null, imageOrder: [], sets: null, curSet: null, starOnly: false,
-  view: { flip: false, bw: false, contrast: false, grid: 0, tone: 'none' },
-};
+const defaultColors = { work: '#ff7a45', rest: '#3aa5ff', done: '#34c07a' };
+const defaults = { work: 25 * 60, rest: 5 * 60, repeat: 4, countdown: 3, ringLock: true, se: true, volume: 70, sound: 'simple',
+                   warnSound: true, warnSec: 5, colors: { ...defaultColors }, favorites: [] };
 let settings = { ...defaults };
-try { Object.assign(settings, JSON.parse(localStorage.getItem(STORE_KEY) || '{}')); } catch (e) {}
+try { Object.assign(settings, JSON.parse(localStorage.getItem('intervalTimer') || '{}')); } catch (e) {}
 settings.colors = { ...defaultColors, ...settings.colors };
-// 前の版の初期色のまま使っていた場合は、新しい初期色にする（自分で選んだ色はそのまま）
-if (Object.keys(oldDefaultColors).every(k => settings.colors[k] === oldDefaultColors[k])) settings.colors = { ...defaultColors };
-settings.view = { ...defaults.view, ...settings.view };
-if (!Array.isArray(settings.steps) || !settings.steps.length) settings.steps = defaultSteps;
 
 // 残り何秒で合図するか（1〜30秒）
 const warnSec = () => Math.min(30, Math.max(1, settings.warnSec || 5));
@@ -751,214 +473,98 @@ const warnSec = () => Math.min(30, Math.max(1, settings.warnSec || 5));
 // 言語を増やすときは、ここに同じキーを持つ表を1つ追加し、#langSel に option を足す
 const I18N = {
   ja: {
-    appTitle: 'IntervaLoop for Artists｜クロッキー・ドローイング練習用タイマー',
+    appTitle: 'IntervaLoop Timer｜無料のインターバルタイマー',
     start: '開始', resume: '再開', pause: '一時停止', reset: 'リセット', resetTip: 'リセット（Shift+R）',
-    restart: '先頭へ', restartTip: '今のポーズ／チェンジの最初に戻る（Home）',
+    restart: '先頭へ', restartTip: '今のワークタイム／インターバルの最初に戻る（Home）',
     backTip: '戻す（←）', fwdTip: '進める（→）',
-    skip: 'スキップ', skipTip: '今のポーズ／チェンジを飛ばす（End / S）',
+    skip: 'スキップ', skipTip: '今のワークタイム／インターバルを飛ばす（End / S）',
     unitS: '秒', unitM: '分', unitH: '時', h: '時', m: '分', s: '秒',
-    work: 'ポーズ', rest: 'チェンジ', times: '回',
-    menuPanel: '練習メニュー', stepsLabel: 'ポーズ時間 × 回数（上から順に）', addStep: '＋ ポーズ時間を追加', removeStep: 'このポーズ時間を削除',
+    work: 'ワークタイム', rest: 'インターバル', repeat: '繰り返し回数', times: '回',
     countdown: '開始前のカウントダウン',
-    total: '合計 {n} ポーズ ・ 約 {time}{cd}', totalCd: '（カウントダウンを含む）',
-    tipSteps: '画像は、ポーズごとに1枚ずつ切り替わります。', tipRest: '0 秒なら、すぐ次のポーズに進みます。',
+    total: '合計 約{time}{cd}', totalCd: '（カウントダウンを含む）', totalInf: '1回あたり 約{time}（止めるまで繰り返す）',
+    tipRest: '0 秒なら、インターバルなしで、すぐ次のワークタイムに進みます。',
+    tipRepeat: '0 回なら、止めるまでずっと繰り返します。',
     tipCountdown: '0 秒なら、すぐに始まります。',
     se: '音を鳴らす', volume: '音量', soundType: '音の種類', warnPre: '残り', warnPost: '秒で小さな音を鳴らす',
+    warnInfo: 'ワークタイムが設定秒数の2倍以上のときだけ、合図が出ます（例：残り{s}秒なら、{d}秒以上のワークタイムのとき）。残り秒数になると、丸いバーの色も変わります。',
     sndSimple: 'シンプル', sndPon: 'ポーン', sndPipipi: 'ピピピ', sndWhistle: 'ホイッスル', sndChime: 'チャイム',
     sndBell: 'ベル', sndXylo: '木琴', sndBuzzer: 'ブザー',
     previewAll: '全部聞く', previewTip: '開始・区切り・終了・最後の音を順番に鳴らす',
     colors: '色の設定', doneColor: '残り秒数／終了', colorReset: '元に戻す',
+    fullscreen: '全画面', fullscreenTip: '全画面表示（F）', fsExit: '全画面を終了（Esc）',
     theme: '背景', themeAuto: '自動（ブラウザに合わせる）', themeLight: 'ライト', themeDark: 'ダーク',
     favFull: 'これ以上登録できません',
-    ready: '準備OK', getReady: 'まもなく開始', phaseWork: 'ポーズ', phaseRest: 'チェンジ', paused: '（一時停止）', done: '終了！',
-    roundOf: '{n} / {total} ポーズ', poseLen: '{time}', nextLen: '次は {time}',
-    nextImage: '次は {n} 枚目の画像', nextPose: '次のポーズは {n} 枚目の画像',
-    restShow: 'チェンジ中の画像', restShowPrev: '前の画像', restShowNext: '次の画像', doneSub: '{n} ポーズ描きました。おつかれさまでした！',
-    reviewHint: '描いた画像をクリックすると、大きく表示できます。', reviewOpen: '▦ 振り返りを見る',
-    needWork: 'ポーズ時間を1秒以上、回数を1回以上にしてください。',
-    soundPanel: '音の設定',
-    favAdd: '＋ 今のメニューを保存', favName: 'メニューの名前', favDel: '削除',
+    ready: '準備OK', getReady: 'まもなく開始', phaseWork: 'ワークタイム', phaseRest: 'インターバル', paused: '（一時停止）', done: '終了！',
+    roundOf: '{n} / {total} 回目', roundN: '{n} 回目',
+    needWork: 'ワークタイムを1秒以上に設定してください。',
+    timePanel: '時間の設定', soundPanel: '音の設定',
+    favAdd: '＋ 時間と回数をお気に入りに', favName: 'お気に入りの名前', favDel: '削除',
     lockTipOn: 'ロックしました', lockTipOff: 'ロックを解除しました',
     lockOn: '丸いバーの操作：ロック中（押すと解除）', lockOff: '丸いバーで時間を動かせます（押すとロック）',
-    favSave: '保存', favCancel: 'キャンセル', favDelYes: '削除', favDelNo: 'やめる', ok: 'OK',
+    favSave: '登録', favCancel: 'キャンセル', favDelYes: '削除', favDelNo: 'やめる',
     favDelAsk: '「{name}」を削除しますか？',
-    preset1: 'クロッキー（段階）', preset2: 'ジェスチャー 30秒', preset3: 'じっくり 5分',
+    favTip: 'ワークタイム {work} / インターバル {rest} / {repeat}回',
     dur: (h, m, s) => (h ? h + '時間' : '') + (m ? m + '分' : '') + (s || (!h && !m) ? s + '秒' : ''),
-    emptyTitle: '練習に使う画像を追加しましょう',
-    emptyText: '画像やフォルダーをここにドラッグ＆ドロップするか、画像をコピーして貼り付け（Ctrl+V）、または下の欄に画像のURLを入力してください。',
-    rightsNotice: '追加した画像は、このブラウザの中だけに保存され、外部には送信されません。参考画像の著作権・肖像権は、撮影した人や写っている人にあります。他の人が権利を持つ画像が写った画面は公開しないでください。描いた絵を公開する場合は、資料としての利用が許可されている画像のみを使ってください。',
-    addFolder: 'フォルダーから追加', addFiles: '画像を選んで追加',
-    urlPh: '画像のURLを貼り付け', urlAdd: 'URLを追加', urlBad: '画像のURL（http〜）を入力してください。',
-    shuffle: 'シャッフル', shuffleTip: 'このセットの画像の並びをランダムに入れ替える',
-    clearAll: '画像をすべて削除', clearAsk: 'このセットの画像をすべて削除しますか？　パソコンに保存してある元の画像ファイルは消えませんが、URL や貼り付けで追加した画像は、アプリから見られなくなります。',
-    starOnly: '★だけで練習', starOnlyTip: '★をつけた画像だけを練習に使う',
-    imgCount: '画像 {n} / {max} 枚',
-    imgFull: 'これ以上登録できません（上限 {max} 枚）',
-    imgPartial: '上限 {max} 枚のため、{n} 枚だけ追加しました。',
-    importRejected: '読み込めない形式の画像が {n} 件あったため、読み込みませんでした。',
-    saveFail: '{n} 枚の画像を保存できませんでした。ブラウザの保存容量が足りない可能性があります。今は表示されていますが、次に開いたときには消えています。',
-    noImages: 'このセットには、まだ画像がありません。', imgBad: '読み込めません',
-    imgDel: '削除', starTip: '★をつける／外す', skipImgTip: '練習で使わない／使う',
-    dropHere: 'ここにドロップして追加',
-    prevImgTip: '前の画像（[）。時間はそのまま', nextImgTip: '次の画像（]）。時間はそのまま',
-    defaultSet: 'セット1', newSet: '＋ 新しいセット', newSetName: 'セット{n}', setName: 'セットの名前',
-    renameSet: '名前を変更', deleteSet: 'セットを削除',
-    undoDeleted: '画像を削除しました', undoDeletedN: '画像を削除しました（{n}枚）', undo: '元に戻す',
-    deleteSetAsk: '「{name}」と、その中の画像 {n} 枚を削除しますか？　パソコンに保存してある元の画像ファイルは消えませんが、URL や貼り付けで追加した画像は、アプリから見られなくなります。',
-    lastSet: 'セットが1つだけのときは削除できません。', setTabTip: 'サムネイルをここにドラッグすると、このセットに移動します',
-    stripClose: '▾ 画像の一覧を閉じる', stripOpen: '▸ 画像の一覧を開く', stripTip: '画像の一覧を開く／閉じる（L）',
-    stripResizeTip: 'ドラッグで画像の一覧の高さを変える（ダブルクリックで元に戻す）',
-    tbHide: '›', tbShow: '‹ 表示', tbHideTip: '表示の道具を閉じる（V）', tbShowTip: '表示の道具を開く（V）',
-    warnInfo: 'ポーズ時間が設定秒数の2倍以上のときだけ、合図が出ます（例：残り{s}秒なら、{d}秒以上のポーズのとき）。残り秒数になると、丸いバーの色も変わります。',
-    flip: '⇋ 反転', flipTip: '左右反転（H）', bw: '白黒', bwTip: '白黒表示（B）',
-    contrast: '明暗強調', contrastTip: '明暗を強調（C）',
-    silhouette: 'シルエット', silTip: '白と黒の2色で、形の大きな流れを見る（K）',
-    three: '3階調', threeTip: '明るい・中間・暗いの3段階で、明暗をとらえる（T）',
-    gridTip: 'グリッド（G）', gridOff: 'グリッドなし',
-    zoomInTip: '拡大（＋ / マウスホイール）', zoomOutTip: '縮小（－ / マウスホイール）',
-    fit: '全体', fitTip: '全体を表示（0）', fullscreen: '全画面', fullscreenTip: '全画面表示（F）',
-    backup: 'データの書き出し・読み込み',
-    backupHint: '画像・セット・練習メニュー・設定を1つのファイルにまとめて保存します。保存したデータは別のブラウザやPCで読み込めます。読み込むと、今のデータは置き換わります。',
-    exportTitle: '次の内容を書き出します',
-    exportAsk: '画像 {n} 枚（ファイルの画像 {f} 枚・URL の画像 {u} 件）、セット {s} 個、練習メニュー {m} 個、設定\nファイルの大きさ：約 {size}',
-    exportUrlNote: 'URL で追加した画像は、URL だけを保存します（画像そのものは入りません）。',
-    exportYes: '書き出す',
-    importTitle: '今のデータは、すべて置き換わります',
-    importYes: '置き換える',
-    importDate: '（{d} に書き出し）',
-    exportBtn: '書き出す（バックアップ）', importBtn: '読み込む', exporting: '書き出し中…', importing: '読み込み中…',
-    importAsk: '今の画像 {cur} 枚・セット・練習メニュー・設定が消えて、選んだバックアップの内容になります。この操作は元に戻せません。\n必要なら、先に今のデータを書き出しておいてください。\n\n読み込むバックアップ：画像 {n} 枚{date}',
-    importNote: '人から受け取ったファイルは、信頼できる場合だけ読み込んでください。',
-    importBad: 'このファイルは読み込めません。IntervaLoop for Artists のバックアップファイルを選んでください。',
     credit: 'Made by みゃ～ざわ',
     keysLink: 'キー操作 ?', keysTitle: 'キー操作', close: '閉じる',
-    keysNote: 'このタブを選んでいるときだけ使えます。',
+    keysNote: 'タイマーのタブを選んでいるときだけ使えます。',
     keys: [
       ['Space', '開始／一時停止'],
       ['← / →', '設定した時間だけ戻す／進める'],
-      ['Home', '今のポーズ／チェンジの先頭へ'],
-      ['End / S', '今のポーズ／チェンジをスキップ'],
-      ['[ / ]', '前の画像／次の画像（時間はそのまま）'],
+      ['Home', '今のワークタイム／インターバルの先頭へ'],
+      ['End / S', '今のワークタイム／インターバルをスキップ'],
       ['Shift + R', 'リセット'],
       ['M', '音のオン／オフ'],
-      ['1〜9', '保存したメニューを呼び出す（止まっているとき）'],
-      ['H', '左右反転'],
-      ['B', '白黒表示'],
-      ['C', '明暗を強調'],
-      ['T', '3階調'],
-      ['K', 'シルエット'],
-      ['G', 'グリッドの切り替え'],
-      ['＋ / －', '拡大／縮小'],
-      ['0', '全体を表示'],
+      ['1〜9', 'お気に入りを呼び出す（止まっているとき）'],
       ['F', '全画面表示'],
-      ['L', '画像の一覧を開く／閉じる'],
-      ['V', '表示の道具を開く／閉じる'],
       ['?', 'この一覧を表示'],
     ],
   },
   en: {
-    appTitle: "IntervaLoop for Artists – Gesture Drawing Timer",
+    appTitle: "IntervaLoop Timer – Free Interval Timer",
     start: 'Start', resume: 'Resume', pause: 'Pause', reset: 'Reset', resetTip: 'Reset (Shift+R)',
-    restart: 'Restart', restartTip: 'Back to the start of this pose / change (Home)',
+    restart: 'Restart', restartTip: 'Back to the start of this work time / interval (Home)',
     backTip: 'Back (←)', fwdTip: 'Forward (→)',
-    skip: 'Skip', skipTip: 'Skip this pose / change (End / S)',
+    skip: 'Skip', skipTip: 'Skip this work time / interval (End / S)',
     unitS: 'sec', unitM: 'min', unitH: 'hr', h: 'h', m: 'm', s: 's',
-    work: 'Pose', rest: 'Change', times: 'times',
-    menuPanel: 'Practice menu', stepsLabel: 'Pose time × count (in order)', addStep: '+ Add pose time', removeStep: 'Remove this pose time',
+    work: 'Work time', rest: 'Interval', repeat: 'Repeat', times: 'times',
     countdown: 'Countdown before start',
-    total: '{n} poses in total · about {time}{cd}', totalCd: ' (incl. countdown)',
-    tipSteps: 'The image changes with each pose.', tipRest: 'At 0 sec, the next pose starts right away.',
-    tipCountdown: 'At 0 sec, practice starts right away.',
-    se: 'Play sounds', volume: 'Volume', soundType: 'Sound', warnPre: 'Soft beeps in the last', warnPost: 'seconds',
+    total: 'Total about {time}{cd}', totalCd: ' (incl. countdown)', totalInf: 'About {time} per round (repeats until stopped)',
+    tipRest: 'At 0 sec, there is no interval and the next work time starts right away.',
+    tipRepeat: 'At 0, it repeats until you stop it.',
+    tipCountdown: 'At 0 sec, it starts right away.',
+    se: 'Play sounds', volume: 'Volume', soundType: 'Sound', warnPre: 'Soft beep in the last', warnPost: 'sec',
+    warnInfo: 'The signal only plays when the work time is at least twice the set seconds (e.g. with {s} seconds, work times of {d} seconds or longer). The ring also changes color at that point.',
     sndSimple: 'Simple', sndPon: 'Pong', sndPipipi: 'Beep beep', sndWhistle: 'Whistle', sndChime: 'Chime',
     sndBell: 'Bell', sndXylo: 'Xylophone', sndBuzzer: 'Buzzer',
     previewAll: 'Preview all', previewTip: 'Play the start, switch, end and final sounds in order',
     colors: 'Colors', doneColor: 'Last seconds / Done', colorReset: 'Reset colors',
+    fullscreen: 'Full screen', fullscreenTip: 'Full screen (F)', fsExit: 'Exit full screen (Esc)',
     theme: 'Background', themeAuto: 'Auto (match browser)', themeLight: 'Light', themeDark: 'Dark',
-    favFull: "You can't add any more menus.",
-    ready: 'Ready', getReady: 'Get ready', phaseWork: 'Pose', phaseRest: 'Change', paused: ' (paused)', done: 'Done!',
-    roundOf: 'Pose {n} / {total}', poseLen: '{time}', nextLen: 'Next: {time}',
-    nextImage: 'Next: image {n}', nextPose: 'Next pose: image {n}',
-    restShow: 'Image during change', restShowPrev: 'Previous image', restShowNext: 'Next image', doneSub: 'You drew {n} poses. Great work!',
-    reviewHint: 'Click an image to see it large.', reviewOpen: '▦ Review',
-    needWork: 'Set each pose time to at least 1 second and each count to at least 1.',
-    soundPanel: 'Sound',
-    favAdd: '+ Save this menu', favName: 'Name for this menu', favDel: 'Delete',
+    favFull: 'You can\'t add any more favorites.',
+    ready: 'Ready', getReady: 'Get ready', phaseWork: 'Work time', phaseRest: 'Interval', paused: ' (paused)', done: 'Done!',
+    roundOf: 'Round {n} / {total}', roundN: 'Round {n}',
+    needWork: 'Please set the work time to at least 1 second.',
+    timePanel: 'Time', soundPanel: 'Sound',
+    favAdd: '+ Save time & repeat', favName: 'Name for this favorite', favDel: 'Delete',
     lockTipOn: 'Locked', lockTipOff: 'Unlocked',
     lockOn: 'Ring is locked (click to unlock)', lockOff: 'Ring can be dragged (click to lock)',
-    favSave: 'Save', favCancel: 'Cancel', favDelYes: 'Delete', favDelNo: 'Keep', ok: 'OK',
+    favSave: 'Save', favCancel: 'Cancel', favDelYes: 'Delete', favDelNo: 'Keep',
     favDelAsk: 'Delete "{name}"?',
-    preset1: 'Croquis (steps)', preset2: 'Gesture 30s', preset3: 'Long 5min',
+    favTip: 'Work time {work} / Interval {rest} / {repeat} times',
     dur: (h, m, s) => (h ? h + 'h' : '') + (m ? m + 'm' : '') + (s || (!h && !m) ? s + 's' : ''),
-    emptyTitle: 'Add images to practice with',
-    emptyText: 'Drag and drop images or a folder here, paste a copied image (Ctrl+V), or enter an image URL below.',
-    rightsNotice: "Images you add are stored only in this browser and are never sent anywhere. The copyright and portrait rights of reference images belong to the people who took them and the people in them. Please don't share screens that show images other people hold the rights to. If you share your drawings, use only images that are allowed to be used as references.",
-    addFolder: 'Add a folder', addFiles: 'Add images',
-    urlPh: 'Paste an image URL', urlAdd: 'Add URL', urlBad: 'Please enter an image URL (http...).',
-    shuffle: 'Shuffle', shuffleTip: 'Put the images in this set in random order',
-    clearAll: 'Remove all images', clearAsk: 'Remove all images in this set? Original image files saved on your computer are not deleted, but images added by URL or by pasting will no longer be available in the app.',
-    starOnly: '★ only', starOnlyTip: 'Practice with starred images only',
-    imgCount: '{n} / {max} images',
-    imgFull: "You can't add any more images (limit: {max}).",
-    imgPartial: 'Only {n} images were added because the limit is {max}.',
-    importRejected: "Skipped {n} images in an unsupported format.",
-    saveFail: "Couldn't save {n} images. The browser may be out of storage space. They are shown now but will be gone next time you open the app.",
-    noImages: 'No images in this set yet.', imgBad: "Can't load",
-    imgDel: 'Remove', starTip: 'Star / unstar', skipImgTip: "Don't use / use in practice",
-    dropHere: 'Drop here to add',
-    prevImgTip: 'Previous image ([). The time keeps going', nextImgTip: 'Next image (]). The time keeps going',
-    defaultSet: 'Set 1', newSet: '+ New set', newSetName: 'Set {n}', setName: 'Name for this set',
-    renameSet: 'Rename', deleteSet: 'Delete set',
-    undoDeleted: 'Image removed', undoDeletedN: 'Images removed ({n})', undo: 'Undo',
-    deleteSetAsk: 'Delete "{name}" and its {n} images? Original image files saved on your computer are not deleted, but images added by URL or by pasting will no longer be available in the app.',
-    lastSet: "You can't delete the only set.", setTabTip: 'Drag a thumbnail here to move it to this set',
-    stripClose: '▾ Hide image list', stripOpen: '▸ Show image list', stripTip: 'Show / hide the image list (L)',
-    stripResizeTip: 'Drag to change the height of the image list (double-click to reset)',
-    tbHide: '›', tbShow: '‹ View', tbHideTip: 'Hide the view tools (V)', tbShowTip: 'Show the view tools (V)',
-    warnInfo: 'The signal only plays when the pose is at least twice the set seconds (e.g. with {s} seconds, poses of {d} seconds or longer). The ring also changes color at that point.',
-    flip: '⇋ Flip', flipTip: 'Flip horizontally (H)', bw: 'B/W', bwTip: 'Black and white (B)',
-    contrast: 'Contrast', contrastTip: 'Boost contrast (C)',
-    silhouette: 'Silhouette', silTip: 'Two tones (black and white) to see the big shapes (K)',
-    three: '3 tones', threeTip: 'Light, middle and dark, to study values (T)',
-    gridTip: 'Grid (G)', gridOff: 'No grid',
-    zoomInTip: 'Zoom in (+ / mouse wheel)', zoomOutTip: 'Zoom out (- / mouse wheel)',
-    fit: 'Fit', fitTip: 'Fit to window (0)', fullscreen: 'Full screen', fullscreenTip: 'Full screen (F)',
-    backup: 'Export / import data',
-    backupHint: 'Save your images, sets, practice menus and settings into one file. You can load the saved data in another browser or PC. Importing replaces your current data.',
-    exportTitle: 'The following will be exported',
-    exportAsk: '{n} images ({f} image files, {u} URLs), {s} sets, {m} practice menus, and settings\nFile size: about {size}',
-    exportUrlNote: 'For images added by URL, only the URL is saved (not the image itself).',
-    exportYes: 'Export',
-    importTitle: 'All current data will be replaced',
-    importYes: 'Replace',
-    importDate: ' (exported on {d})',
-    exportBtn: 'Export (backup)', importBtn: 'Import', exporting: 'Exporting…', importing: 'Importing…',
-    importAsk: 'Your current {cur} images, sets, practice menus and settings will be removed and replaced with the backup. This cannot be undone.\nIf needed, export your current data first.\n\nBackup to import: {n} images{date}',
-    importNote: 'Only import files from people you trust.',
-    importBad: "This file can't be loaded. Please choose an IntervaLoop for Artists backup file.",
     credit: 'Made by Myaaazawa',
     keysLink: 'Shortcuts ?', keysTitle: 'Keyboard shortcuts', close: 'Close',
     keysNote: 'Works only while this tab is selected.',
     keys: [
       ['Space', 'Start / pause'],
       ['← / →', 'Back / forward by the set time'],
-      ['Home', 'Restart the current pose / change'],
-      ['End / S', 'Skip the current pose / change'],
-      ['[ / ]', 'Previous / next image (the time keeps going)'],
+      ['Home', 'Restart the current work time / interval'],
+      ['End / S', 'Skip the current work time / interval'],
       ['Shift + R', 'Reset'],
       ['M', 'Sound on / off'],
-      ['1–9', 'Load a saved menu (when stopped)'],
-      ['H', 'Flip horizontally'],
-      ['B', 'Black and white'],
-      ['C', 'Boost contrast'],
-      ['T', '3 tones'],
-      ['K', 'Silhouette'],
-      ['G', 'Change the grid'],
-      ['+ / -', 'Zoom in / out'],
-      ['0', 'Fit to window'],
+      ['1–9', 'Load a favorite (when stopped)'],
       ['F', 'Full screen'],
-      ['L', 'Show / hide the image list'],
-      ['V', 'Show / hide the view tools'],
       ['?', 'Show this list'],
     ],
   },
@@ -967,132 +573,92 @@ let lang = settings.lang || ((navigator.language || '').toLowerCase().startsWith
 if (!Object.hasOwn(I18N, lang)) lang = 'en';   // 表にない言語（変な値を含む）は英語にする
 const t = (key, params = {}) =>
   String(I18N[lang][key] ?? I18N.en[key] ?? key).replace(/\{(\w+)\}/g, (_, k) => params[k]);
+const short = sec => I18N[lang].dur(Math.floor(sec / 3600), Math.floor(sec % 3600 / 60), sec % 60);
 
 function applyLang() {
   document.documentElement.lang = lang;
   $('langSel').value = lang;
   document.querySelectorAll('[data-i18n]').forEach(el => el.textContent = t(el.dataset.i18n));
   document.querySelectorAll('[data-i18n-title]').forEach(el => el.title = t(el.dataset.i18nTitle));
-  document.querySelectorAll('[data-i18n-ph]').forEach(el => el.placeholder = t(el.dataset.i18nPh));
   $('keyTable').innerHTML = '';
   I18N[lang].keys.forEach(([k, desc]) => {
     const tr = $('keyTable').insertRow();
     tr.insertCell().innerHTML = k.split(' / ').map(x => `<kbd>${x}</kbd>`).join(' / ');
     tr.insertCell().textContent = desc;
   });
+  updateWarnInfo();
+  showTotal();
 }
-
-// 初めて開いたときだけ、見本のメニューと最初のセットを用意する
-if (!Array.isArray(settings.favorites)) {
-  settings.favorites = [
-    { name: t('preset1'), steps: defaultSteps, rest: 5 },
-    { name: t('preset2'), steps: [{ work: 30, count: 20 }], rest: 3 },
-    { name: t('preset3'), steps: [{ work: 300, count: 4 }], rest: 10 },
-  ];
-}
-if (!Array.isArray(settings.sets) || !settings.sets.length) settings.sets = [{ id: 's1', name: t('defaultSet') }];
-if (!settings.sets.some(s => s.id === settings.curSet)) settings.curSet = settings.sets[0].id;
 
 function save() {
-  try { localStorage.setItem(STORE_KEY, JSON.stringify(settings)); } catch (e) {}
+  try { localStorage.setItem('intervalTimer', JSON.stringify(settings)); } catch (e) {}
 }
-const hmsHtml = () => ['h', 'm', 's'].map(u =>
-  `<input type="number" inputmode="numeric" min="0" max="${u === 'h' ? 99 : 59}" data-u="${u}"><span>${t(u)}</span>`).join('');
-function setHms(box, total) {
+function setHms(key, total) {
+  const box = document.querySelector(`.hms[data-key="${key}"]`);
   box.querySelector('[data-u=h]').value = Math.floor(total / 3600);
   box.querySelector('[data-u=m]').value = Math.floor(total % 3600 / 60);
   box.querySelector('[data-u=s]').value = total % 60;
 }
-function getHms(box) {
+function getHms(key) {
+  const box = document.querySelector(`.hms[data-key="${key}"]`);
   const v = u => Math.max(0, parseInt(box.querySelector(`[data-u=${u}]`).value, 10) || 0);
   return v('h') * 3600 + v('m') * 60 + v('s');
 }
-const restBox = () => document.querySelector('.hms[data-key="rest"]');
-
-// ---- 練習メニュー（段階ごとの ポーズ時間 × 回数） ----
-function renderSteps() {
-  const box = $('steps');
-  box.innerHTML = '';
-  settings.steps.forEach((st, i) => {
-    const row = document.createElement('div');
-    row.className = 'step';
-    row.innerHTML = `<span class="no">${i + 1}</span><div class="hms">${hmsHtml()}</div>
-      <span class="x">×</span><input class="num" type="number" inputmode="numeric" min="1" max="999" data-count>
-      <span class="x">${t('times')}</span>
-      <button type="button" class="ghost rm" title="${t('removeStep')}">×</button>`;
-    setHms(row.querySelector('.hms'), st.work);
-    row.querySelector('[data-count]').value = st.count;
-    const rm = row.querySelector('.rm');
-    rm.disabled = settings.steps.length <= 1;
-    rm.style.visibility = settings.steps.length <= 1 ? 'hidden' : '';
-    rm.onclick = () => { settings.steps.splice(i, 1); save(); renderSteps(); render(); };
-    box.append(row);
-  });
-  setHms(restBox(), settings.rest);
-  $('restShow').value = settings.restShow === 'next' ? 'next' : 'prev';
-  $('countdown').value = settings.countdown;
-  showTotal();
-}
-function readSteps() {
-  settings.steps = [...$('steps').children].map(row => ({
-    work: getHms(row.querySelector('.hms')),
-    count: Math.max(0, parseInt(row.querySelector('[data-count]').value, 10) || 0),
-  }));
-  settings.rest = getHms(restBox());
+function readSettings() {
+  settings.work = getHms('work');
+  settings.rest = getHms('rest');
+  settings.repeat = Math.max(0, parseInt($('repeat').value, 10) || 0);
   settings.countdown = Math.min(10, Math.max(0, parseInt($('countdown').value, 10) || 0));
-  save(); showTotal();
-}
-// ポーズ時間を1回ずつ並べた一覧（例：30秒×2 → [30, 30]）
-const works = () => settings.steps.flatMap(st => Array(st.count).fill(st.work)).filter(w => w > 0);
-// 合計時間（チェンジは最後のポーズの後には入らない）。開始前のカウントダウンも足す
-function showTotal() {
-  // チェンジが 0 秒のときは、チェンジ中の画像は関係ないので選べなくする
-  $('restShow').disabled = settings.rest <= 0;
-  $('restShow').closest('.row').classList.toggle('off', settings.rest <= 0);
-  const w = works();
-  const countdown = w.length ? settings.countdown : 0;
-  const sec = countdown + w.reduce((a, b) => a + b, 0) + settings.rest * Math.max(0, w.length - 1);
-  const cd = countdown > 0 ? t('totalCd', { sec: short(countdown) }) : '';
-  $('total').textContent = t('total', { n: w.length, time: short(sec), cd });
-}
-$('addStep').onclick = () => {
-  const last = settings.steps[settings.steps.length - 1];
-  settings.steps.push({ work: last ? last.work : 60, count: last ? last.count : 1 });
-  save(); renderSteps(); render();
-};
-$('menuSet').addEventListener('input', () => { readSteps(); if (state === 'idle') render(); });
-$('restShow').addEventListener('change', () => { settings.restShow = $('restShow').value; save(); });
-
-// ---- 音の設定 ----
-function readSound() {
   settings.se = $('seOn').checked;
   settings.volume = +$('volume').value;
   settings.sound = $('soundSel').value;
   settings.warnSound = $('warnOn').checked;
   settings.warnSec = Math.min(30, Math.max(1, parseInt($('warnSec').value, 10) || 5));
   showVolume();
+  showTotal();
   save();
 }
 function showVolume() {
   $('volumeVal').textContent = settings.volume + '%';
   document.querySelectorAll('.volume, .sound-row, .warn-row').forEach(el => el.classList.toggle('off', !settings.se));
 }
-$('seOn').checked = settings.se;
-$('volume').value = settings.volume;
-$('soundSel').value = settings.sound;
-$('warnOn').checked = settings.warnSound;
-$('warnSec').value = warnSec();
+// 合計時間（インターバルは最後のワークタイムの後には入らない）。開始前のカウントダウンも足す。
+// 止めるまで繰り返すときは、1回あたりの時間（カウントダウンは最初だけなので含めない）
+function showTotal() {
+  const { work, rest, repeat, countdown } = settings;
+  const cd = countdown > 0 ? t('totalCd', { sec: short(countdown) }) : '';
+  $('total').textContent = repeat > 0
+    ? t('total', { n: repeat, cd, time: short(countdown + work * repeat + rest * (repeat - 1)) })
+    : t('totalInf', { time: short(work + rest) });
+}
 // ⓘ の説明は、今の秒数を例にして表示する
-const updateWarnInfo = () => { $('warnTip').textContent = t('warnInfo', { s: warnSec(), d: warnSec() * 2 }); };
+function updateWarnInfo() {
+  $('warnTip').textContent = t('warnInfo', { s: warnSec(), d: warnSec() * 2 });
+}
+function writeInputs() {
+  setHms('work', settings.work);
+  setHms('rest', settings.rest);
+  $('repeat').value = settings.repeat;
+  $('countdown').value = settings.countdown;
+  $('seOn').checked = settings.se;
+  $('volume').value = settings.volume;
+  $('soundSel').value = settings.sound;
+  if (!$('soundSel').value) $('soundSel').value = settings.sound = 'simple';
+  $('warnOn').checked = settings.warnSound;
+  $('warnSec').value = warnSec();
+  showVolume();
+  showTotal();
+}
+writeInputs();
 $('warnSec').addEventListener('change', () => { $('warnSec').value = warnSec(); updateWarnInfo(); });
-if (!$('soundSel').value) $('soundSel').value = settings.sound = 'simple';
-showVolume();
-$('soundPanel').addEventListener('input', readSound);
+$('countdown').addEventListener('change', () => $('countdown').value = settings.countdown);
 // スライダーを動かし終えたら、今の音量で試し音を鳴らす
 $('volume').addEventListener('change', () => se('start'));
 // 音の種類を選んだら終了音を鳴らす。「全部聞く」で4つ順番に鳴らす
 $('soundSel').addEventListener('change', () => se('end'));
 $('previewBtn').onclick = () => previewAll();
+['panel', 'soundPanel'].forEach(id =>
+  $(id).addEventListener('input', () => { readSettings(); if (state === 'idle') render(); }));
 
 // ---- 色 ----
 function applyColors() {
@@ -1102,7 +668,7 @@ function applyColors() {
   }
   updateFavicon();
 }
-// タブのアイコン：角の丸い四角に、左の輪（満タン）を手前、右の輪（4割）を奥にして、ポーズとチェンジの色の輪を2つ
+// タブのアイコン：角の丸い四角に、左の輪（満タン）を手前、右の輪（4割）を奥にして、ワークタイムとインターバルの色の輪を2つ
 function updateFavicon() {
   const { work, rest } = settings.colors;
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
@@ -1127,7 +693,7 @@ document.querySelectorAll('[data-color]').forEach(inp => {
 $('colorReset').onclick = () => { settings.colors = { ...defaultColors }; applyColors(); save(); };
 applyColors();
 
-// ---- 背景（自動／ライト／ダーク） ----
+// ---- 背景（自動／白／ダーク） ----
 function applyTheme() {
   const th = settings.theme || 'auto';
   if (th === 'auto') document.documentElement.removeAttribute('data-theme');
@@ -1137,11 +703,8 @@ function applyTheme() {
 $('themeSel').addEventListener('change', () => { settings.theme = $('themeSel').value; applyTheme(); save(); });
 applyTheme();
 
-// ---- 保存したメニュー（お気に入り） ----
-const short = sec => I18N[lang].dur(Math.floor(sec / 3600), Math.floor(sec % 3600 / 60), sec % 60);
+// ---- お気に入り ----
 const MAX_FAVS = 9;   // キーの1〜9で呼び出せる数に合わせる
-const menuText = f => f.steps.map(st => `${short(st.work)}×${st.count}`).join(' → ') +
-  (f.rest ? ` / ${t('rest')} ${short(f.rest)}` : '');
 function renderFavs() {
   const box = $('favs');
   box.innerHTML = '';
@@ -1149,12 +712,11 @@ function renderFavs() {
     const chip = document.createElement('span');
     chip.className = 'chip';
     const load = document.createElement('button');
-    load.type = 'button';
     load.textContent = f.name;
-    load.title = (i < 9 ? `[${i + 1}] ` : '') + menuText(f);
+    load.title = (i < 9 ? `[${i + 1}] ` : '') +
+      t('favTip', { work: short(f.work), rest: short(f.rest), repeat: f.repeat || '∞' });
     load.onclick = () => loadFav(i);
     const del = document.createElement('button');
-    del.type = 'button';
     del.className = 'del'; del.textContent = '×'; del.title = t('favDel');
     del.onclick = () => askDelete(chip, f.name, () => {
       settings.favorites.splice(i, 1); save(); renderFavs();
@@ -1163,15 +725,14 @@ function renderFavs() {
     box.append(chip);
   });
   const add = document.createElement('button');
-  add.type = 'button';
   add.className = 'ghost'; add.textContent = t('favAdd');
   add.onclick = () => {
     if (settings.favorites.length >= MAX_FAVS) { favNote(add, t('favFull')); return; }
-    readSteps();
-    const steps = settings.steps.map(st => ({ ...st })), rest = settings.rest;
-    const def = steps.map(st => `${short(st.work)}×${st.count}`).join('→');
+    readSettings();
+    const { work, rest, repeat } = settings;
+    const def = `${short(work)}/${short(rest)}×${repeat || '∞'}`;
     openFavForm(add, def, name => {
-      settings.favorites.push({ name, steps, rest });
+      settings.favorites.push({ name, work, rest, repeat });
       save(); renderFavs();
     });
   };
@@ -1202,72 +763,6 @@ function openFavForm(add, def, onSave) {
   add.replaceWith(form);
   inp.focus(); inp.select();
 }
-// ---- ページの中のお知らせ・確認・名前の入力 ----
-// ブラウザのダイアログ（alert / confirm / prompt）は、開いているあいだページの動きを止めて
-// 計測中のタイマーも止まってしまうため、代わりにページの中で表示する
-const UNDO_MS = 8000;           // 1枚ずつ消した画像を「元に戻す」で戻せる時間
-let undoStack = [], undoTimer = null;
-function toast(msg, ms = 4000) {
-  clearUndo();
-  document.querySelector('.toast')?.remove();
-  const el = document.createElement('div');
-  el.className = 'toast'; el.setAttribute('role', 'status'); el.textContent = msg;
-  document.body.append(el);
-  setTimeout(() => el.remove(), ms);
-}
-// 確認（input なし）は true / false、名前の入力（input に初期値）は 文字列 / null を返す
-function uiDialog(msg, { input = null, okText = t('ok'), danger = false, title = '', note = '' } = {}) {
-  return new Promise(resolve => {
-    const wrap = document.createElement('div');
-    wrap.className = 'modal ui-dialog';
-    const box = document.createElement('div');
-    box.className = 'modal-box'; box.setAttribute('role', 'dialog'); box.setAttribute('aria-modal', 'true');
-    if (title) {
-      const h = document.createElement('div');
-      h.className = 'ui-title'; h.textContent = title;
-      box.append(h);
-    }
-    const p = document.createElement('div');
-    p.className = 'ui-msg'; p.textContent = msg;
-    box.append(p);
-    // 補足の注意は、少し間をあけて小さめ・薄い色で出す
-    if (note) {
-      const n = document.createElement('div');
-      n.className = 'ui-note'; n.textContent = note;
-      box.append(n);
-    }
-    let inp = null;
-    if (input !== null) {
-      inp = document.createElement('input');
-      inp.type = 'text'; inp.className = 'ui-input'; inp.value = [...input].slice(0, 20).join(''); inp.maxLength = 20;
-      inp.setAttribute('aria-label', msg);
-      box.append(inp);
-    }
-    const btns = document.createElement('div');
-    btns.className = 'ui-btns';
-    const cancel = document.createElement('button');
-    cancel.type = 'button'; cancel.className = 'ghost'; cancel.textContent = t('favCancel');
-    const ok = document.createElement('button');
-    ok.type = 'button'; ok.className = 'ghost ui-ok' + (danger ? ' danger' : ''); ok.textContent = okText;
-    btns.append(cancel, ok);
-    box.append(btns);
-    wrap.append(box);
-    document.body.append(wrap);
-    const close = v => { wrap.remove(); resolve(v); };
-    ok.onclick = () => close(inp ? inp.value : true);
-    cancel.onclick = () => close(inp ? null : false);
-    wrap.addEventListener('click', e => { if (e.target === wrap) cancel.onclick(); });
-    // キー操作（スペースで開始など）が裏で動かないよう、ここで止める
-    wrap.addEventListener('keydown', e => {
-      e.stopPropagation();
-      if (e.key === 'Escape') { e.preventDefault(); cancel.onclick(); }
-      else if (e.key === 'Enter' && e.target === inp) { e.preventDefault(); ok.onclick(); }
-    });
-    (inp || ok).focus();
-    inp?.select();
-  });
-}
-
 // 削除の確認も、ページの中で行う（ブラウザの確認ダイアログは、計測中のタイマーを止めてしまうため）。
 // しばらく押さなければ、元の表示に戻す
 function askDelete(chip, name, onYes) {
@@ -1303,20 +798,14 @@ function lockFavs() {
 function loadFav(i) {
   const f = settings.favorites[i];
   if (!f || active()) return;
-  settings.steps = f.steps.map(st => ({ ...st }));
-  settings.rest = f.rest;
-  save(); renderSteps();
+  Object.assign(settings, { work: f.work, rest: f.rest, repeat: f.repeat });
+  writeInputs(); save();
   if (state === 'done') state = 'idle';
   render();
 }
 
 // ---- 効果音（Web Audioで生成） ----
 let ctx = null;
-const soundOn = () => settings.se && settings.volume > 0;
-function ensureCtx() {
-  ctx = ctx || new (window.AudioContext || window.webkitAudioContext)();
-  if (ctx.state === 'suspended') ctx.resume();
-}
 // vol：音ごとの大きさの補正、hold：鳴らし続ける長さ（ブザーなど）
 function tone(freq, start, dur, { type = 'sine', vol = 1, hold = 0 } = {}) {
   const o = ctx.createOscillator(), g = ctx.createGain();
@@ -1366,7 +855,7 @@ const buzz = (s, len) => {
   tone(151.5, s, len, { type: 'square', vol: 0.2, hold: len - 0.05 });
 };
 
-// 音の種類：開始・区切り（チェンジなし）・終了・最後 を一式で持つ
+// 音の種類：開始・区切り（インターバルなし）・終了・最後 を一式で持つ
 const SOUNDS = {
   simple: {
     start:  () => { tone(660, 0, 0.15); tone(990, 0.15, 0.25); },
@@ -1418,6 +907,11 @@ const SOUNDS = {
   },
 };
 
+const soundOn = () => settings.se && settings.volume > 0;
+function ensureCtx() {
+  ctx = ctx || new (window.AudioContext || window.webkitAudioContext)();
+  if (ctx.state === 'suspended') ctx.resume();
+}
 function se(kind) {
   if (!soundOn()) return;
   ensureCtx();
@@ -1437,765 +931,16 @@ function previewAll() {
   previewTimers = ['start', 'switch', 'end', 'finish'].map((k, i) => setTimeout(() => se(k), i * 2500));
 }
 
-// ---- 画像の保存（ブラウザの中の保存場所 IndexedDB。開き直しても残る） ----
-const idb = (() => {
-  let dbp = null;
-  const open = () => dbp || (dbp = new Promise((res, rej) => {
-    const r = indexedDB.open('intervaloop-artists', 1);
-    r.onupgradeneeded = () => r.result.createObjectStore('images', { keyPath: 'id' });
-    r.onsuccess = () => res(r.result);
-    r.onerror = () => rej(r.error);
-  }));
-  const run = async (mode, fn) => {
-    const db = await open();
-    return new Promise((res, rej) => {
-      const tx = db.transaction('images', mode);
-      const req = fn(tx.objectStore('images'));
-      tx.oncomplete = () => res(req && req.result);
-      tx.onerror = () => rej(tx.error);
-    });
-  };
-  return {
-    all: () => run('readonly', s => s.getAll()),
-    put: rec => run('readwrite', s => s.put(rec)),
-    del: id => run('readwrite', s => s.delete(id)),
-    clear: () => run('readwrite', s => s.clear()),
-  };
-})();
-
-// ---- 画像の一覧（セットごと） ----
-let images = [];          // { id, name, setId, star, skip, src, url?, objUrl?, thumbUrl?, rec, bad }
-let curId = null;         // 表示している画像の id
-const MAX_IMAGES = 500;
-const THUMB_SIZE = 180;   // 一覧用の小さな画像の長い辺（px）
-const DRAG_TYPE = 'application/x-ila-id';
-const saveOrder = () => { settings.imageOrder = images.map(im => im.id); save(); };
-const newId = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
-const setImgs = () => images.filter(im => im.setId === settings.curSet);
-const curItem = () => images.find(im => im.id === curId) || null;
-// 練習に使える画像か（読み込めない画像、「使わない」画像、★だけのときの★なしは除く）
-const usable = im => !im.skip && !im.bad && (!settings.starOnly || im.star);
-const persist = im => idb.put(im.rec).catch(() => {});
-
-// 今の画像から dir の向きに、次の画像を探す（端まで来たら反対側に戻る）
-function stepImage(dir, onlyUsable) {
-  const list = setImgs();
-  if (!list.length) return null;
-  let i = list.findIndex(im => im.id === curId);
-  if (i < 0) i = dir > 0 ? -1 : list.length;
-  for (let n = 0; n < list.length; n++) {
-    i = ((i + dir) % list.length + list.length) % list.length;
-    if (!onlyUsable || usable(list[i])) return list[i];
-  }
-  return null;
-}
-// 練習の最初の画像：今の画像が使えればそれ、だめなら次の使える画像
-const firstUsable = () => {
-  const c = curItem();
-  return c && c.setId === settings.curSet && usable(c) ? c : stepImage(1, true);
-};
-
-function makeItem(rec) {
-  const item = { id: rec.id, name: rec.name || '', setId: rec.setId, star: !!rec.star, skip: !!rec.skip, rec, bad: false };
-  if (rec.blob) { item.objUrl = URL.createObjectURL(rec.blob); item.src = item.objUrl; }
-  else { item.url = rec.url; item.src = rec.url; }
-  if (rec.thumb) item.thumbUrl = URL.createObjectURL(rec.thumb);
-  return item;
-}
-const revokeItem = im => {
-  if (im.objUrl) URL.revokeObjectURL(im.objUrl);
-  if (im.thumbUrl) URL.revokeObjectURL(im.thumbUrl);
-};
-// 一覧を軽くするため、元の画像から小さな画像（JPEG）を作る。作れないときは null
-async function makeThumb(blob) {
-  try {
-    const bmp = await createImageBitmap(blob);
-    const s = Math.min(1, THUMB_SIZE / Math.max(bmp.width, bmp.height));
-    const c = document.createElement('canvas');
-    c.width = Math.max(1, Math.round(bmp.width * s)); c.height = Math.max(1, Math.round(bmp.height * s));
-    c.getContext('2d').drawImage(bmp, 0, 0, c.width, c.height);
-    bmp.close?.();
-    return await new Promise(res => c.toBlob(res, 'image/jpeg', 0.8));
-  } catch (e) { return null; }
-}
-// 前の版で保存した画像など、小さな画像やセットの情報がないものを直して保存し直す
-async function fixOldRecords() {
-  let changed = false;
-  for (const im of images) {
-    const rec = im.rec;
-    let dirty = false;
-    if (!settings.sets.some(s => s.id === rec.setId)) { rec.setId = im.setId = settings.sets[0].id; dirty = true; }
-    if (rec.blob && !rec.thumb) {
-      rec.thumb = await makeThumb(rec.blob);
-      if (rec.thumb) { im.thumbUrl = URL.createObjectURL(rec.thumb); dirty = true; }
-    }
-    if (dirty) { changed = true; await persist(im); }
-  }
-  if (changed) { renderSets(); renderStrip(); }
-}
-async function loadImages() {
-  try {
-    const recs = await idb.all();
-    const byId = new Map(recs.map(r => [r.id, r]));
-    const ordered = settings.imageOrder.filter(id => byId.has(id)).map(id => byId.get(id));
-    recs.forEach(r => { if (!settings.imageOrder.includes(r.id)) ordered.push(r); });
-    // 読み込み中に追加された画像は、後ろに残す
-    images = ordered.map(makeItem).concat(images.filter(im => !byId.has(im.id)));
-    // セットの情報がない画像は、最初のセットに入れておく（保存し直しは fixOldRecords で）
-    images.forEach(im => { if (!settings.sets.some(s => s.id === im.setId)) im.setId = settings.sets[0].id; });
-  } catch (e) {}
-  if (!curItem()) curId = setImgs()[0]?.id ?? null;
-  renderSets(); renderStrip(); showImage(curId);
-  fixOldRecords();
-}
-async function addRecords(recs) {
-  if (!recs.length) return;
-  // 上限を超える分は追加しない
-  const room = MAX_IMAGES - images.length;
-  if (room <= 0) { toast(t('imgFull', { max: MAX_IMAGES })); return; }
-  const skipped = recs.length > room;
-  if (skipped) recs = recs.slice(0, room);
-  const noCurrent = !curItem() || curItem().setId !== settings.curSet;
-  let failed = 0, firstId = null;
-  for (const rec of recs) {
-    rec.id = newId();
-    rec.setId = settings.curSet; rec.star = false; rec.skip = false;
-    if (rec.blob) rec.thumb = await makeThumb(rec.blob);
-    images.push(makeItem(rec));
-    firstId = firstId || rec.id;
-    try { await idb.put(rec); } catch (e) { failed++; }
-  }
-  saveOrder(); renderSets(); renderStrip();
-  if (noCurrent) showImage(firstId);
-  const notes = [];
-  if (skipped) notes.push(t('imgPartial', { max: MAX_IMAGES, n: recs.length }));
-  if (failed) notes.push(t('saveFail', { n: failed }));
-  if (notes.length) toast(notes.join('\n'), failed ? 8000 : 4000);
-}
-const isImageFile = f => f.type.startsWith('image/') || /\.(jpe?g|png|gif|webp|bmp|avif|svg)$/i.test(f.name);
-const byName = (a, b) => a.name.localeCompare(b.name, undefined, { numeric: true });
-function addFiles(fileList, sort) {
-  let files = [...fileList].filter(isImageFile);
-  if (sort) files.sort(byName);
-  return addRecords(files.map(f => ({ name: f.name, blob: f })));
-}
-const looksLikeUrl = s => /^(https?:\/\/|data:image\/)/i.test(s.trim());
-function addUrls(urls) {
-  const list = [...new Set(urls.map(u => u.trim()).filter(looksLikeUrl))];
-  return addRecords(list.map(u => ({ name: u.startsWith('data:') ? 'image' : u.split('/').pop().split('?')[0], url: u })));
-}
-async function removeImage(id) {
-  const i = images.findIndex(im => im.id === id);
-  if (i < 0) return;
-  const wasCurrent = curId === id;
-  if (wasCurrent) { const n = stepImage(1, false); curId = n && n.id !== id ? n.id : null; }
-  const [im] = images.splice(i, 1);
-  revokeItem(im);
-  try { await idb.del(im.id); } catch (e) {}
-  saveOrder(); renderSets(); renderStrip(); showImage(curId);
-  // 8秒間は「元に戻す」で戻せるように、消した画像を覚えておく（新しい順に1枚ずつ戻す）
-  undoStack.push({ rec: im.rec, index: i, prevId: images[i - 1]?.id ?? null, wasCurrent: wasCurrent });
-  showUndo();
-}
-
-// ---- 1枚ずつ消した画像を「元に戻す」 ----
-// 最後の操作から8秒たつか、ほかのお知らせが出ると、それまでに消した画像は戻せなくなる
-// （画像はすぐに保存先から消しているので、ページを閉じた場合もそのまま削除になる）
-function clearUndo() {
-  undoStack = [];
-  clearTimeout(undoTimer); undoTimer = null;
-  document.querySelector('.undo-toast')?.remove();
-}
-function showUndo() {
-  clearTimeout(undoTimer);
-  if (!undoStack.length) { clearUndo(); return; }
-  let el = document.querySelector('.undo-toast');
-  if (!el) {
-    document.querySelector('.toast')?.remove();
-    el = document.createElement('div');
-    el.className = 'toast undo-toast'; el.setAttribute('role', 'status');
-    const msg = document.createElement('span'); msg.className = 'undo-msg';
-    const btn = document.createElement('button'); btn.className = 'undo-btn'; btn.type = 'button';
-    btn.onclick = undoRemove;
-    el.append(msg, btn);
-    document.body.append(el);
-  }
-  const n = undoStack.length;
-  el.querySelector('.undo-msg').textContent = n > 1 ? t('undoDeletedN', { n }) : t('undoDeleted');
-  el.querySelector('.undo-btn').textContent = t('undo');
-  undoTimer = setTimeout(clearUndo, UNDO_MS);
-}
-async function undoRemove() {
-  const u = undoStack.pop();
-  if (!u) return;
-  const rec = u.rec;
-  // 消したあとでセットが削除されていたら、いま開いているセットに戻す
-  if (!settings.sets.some(st => st.id === rec.setId)) rec.setId = settings.curSet;
-  // 元の位置：消したときに前にあった画像のすぐ後ろ（見つからなければ同じ番号の位置）
-  let at = u.prevId ? images.findIndex(im => im.id === u.prevId) + 1 : 0;
-  if (u.prevId && at === 0) at = Math.min(u.index, images.length);
-  images.splice(at, 0, makeItem(rec));
-  try { await idb.put(rec); } catch (e) {}
-  saveOrder(); renderSets(); renderStrip();
-  if ((u.wasCurrent || !curItem()) && rec.setId === settings.curSet) showImage(rec.id);
-  showUndo();
-}
-function toggleFlag(im, key) {
-  im[key] = im.rec[key] = !im[key];
-  persist(im); renderStrip();
-}
-
-// ---- セット ----
-function renderSets() {
-  const box = $('setTabs');
-  box.innerHTML = '';
-  settings.sets.forEach(s => {
-    const b = document.createElement('button');
-    b.className = 'set-tab' + (s.id === settings.curSet ? ' on' : '');
-    b.textContent = `${s.name} (${images.filter(im => im.setId === s.id).length})`;
-    b.title = t('setTabTip');
-    b.disabled = active();
-    b.onclick = () => switchSet(s.id);
-    // サムネイルをこのタブにドロップすると、このセットに移動する
-    b.addEventListener('dragover', e => {
-      if (!e.dataTransfer.types.includes(DRAG_TYPE) || s.id === settings.curSet) return;
-      e.preventDefault(); b.classList.add('drop');
-    });
-    b.addEventListener('dragleave', () => b.classList.remove('drop'));
-    b.addEventListener('drop', e => {
-      if (!e.dataTransfer.types.includes(DRAG_TYPE)) return;
-      e.preventDefault(); e.stopPropagation(); b.classList.remove('drop');
-      moveToSet(e.dataTransfer.getData(DRAG_TYPE), s.id);
-    });
-    box.append(b);
-  });
-  const act = (key, fn) => {
-    const b = document.createElement('button');
-    b.className = 'ghost set-act'; b.textContent = t(key); b.onclick = fn; b.disabled = active();
-    box.append(b);
-  };
-  act('newSet', async () => {
-    const name = await uiDialog(t('setName'), { input: t('newSetName', { n: settings.sets.length + 1 }) });
-    if (name === null) return;
-    const s = { id: newId(), name: name.trim() || t('newSetName', { n: settings.sets.length + 1 }) };
-    settings.sets.push(s); save(); switchSet(s.id);
-  });
-  act('renameSet', async () => {
-    const s = settings.sets.find(x => x.id === settings.curSet);
-    const name = await uiDialog(t('setName'), { input: s.name });
-    if (name === null || !name.trim()) return;
-    s.name = name.trim(); save(); renderSets();
-  });
-  act('clearAll', clearSet);
-  act('deleteSet', async () => {
-    if (settings.sets.length <= 1) { toast(t('lastSet')); return; }
-    const s = settings.sets.find(x => x.id === settings.curSet);
-    const list = setImgs();
-    if (!await uiDialog(t('deleteSetAsk', { name: s.name, n: list.length }), { okText: t('favDelYes'), danger: true })) return;
-    for (const im of list) { revokeItem(im); try { await idb.del(im.id); } catch (e) {} }
-    images = images.filter(im => im.setId !== s.id);
-    settings.sets = settings.sets.filter(x => x.id !== s.id);
-    saveOrder(); switchSet(settings.sets[0].id);
-  });
-}
-function switchSet(id) {
-  settings.curSet = id; save();
-  curId = setImgs()[0]?.id ?? null;
-  renderSets(); renderStrip(); showImage(curId);
-}
-function moveToSet(imgId, setId) {
-  const im = images.find(x => x.id === imgId);
-  if (!im || im.setId === setId) return;
-  if (curId === imgId) { const n = stepImage(1, false); curId = n && n.id !== imgId ? n.id : null; }
-  im.setId = im.rec.setId = setId;
-  persist(im); renderSets(); renderStrip(); showImage(curId);
-}
-
-function renderStrip() {
-  const strip = $('strip');
-  strip.innerHTML = '';
-  $('imgCount').textContent = t('imgCount', { n: images.length, max: MAX_IMAGES });
-  const list = setImgs();
-  if (!list.length) {
-    strip.innerHTML = `<span class="none">${t('noImages')}</span>`;
-    return;
-  }
-  list.forEach((im, i) => {
-    const th = document.createElement('div');
-    th.className = 'thumb' + (im.id === curId ? ' cur' : '') + (im.star ? ' starred' : '') +
-      (im.skip ? ' skipped' : '') + (settings.starOnly && !im.star && !im.skip ? ' dim' : '');
-    th.draggable = true;
-    th.dataset.id = im.id;
-    th.title = im.name;
-    th.innerHTML = `<img alt=""><span class="num">${i + 1}</span>
-      <button class="del" title="${t('imgDel')}">×</button>
-      <button class="star" title="${t('starTip')}">${im.star ? '★' : '☆'}</button>
-      <button class="skip" title="${t('skipImgTip')}">⊘</button>`;
-    const img = th.querySelector('img');
-    img.onerror = () => { im.bad = true; if (!th.querySelector('.bad')) th.insertAdjacentHTML('beforeend', `<span class="bad">${t('imgBad')}</span>`); };
-    img.loading = 'lazy'; img.decoding = 'async';
-    img.src = im.thumbUrl || im.src;    // 小さな画像があればそちらを使う
-    th.onclick = e => { if (!e.target.closest('button')) showImage(im.id); };
-    th.querySelector('.del').onclick = () => removeImage(im.id);
-    th.querySelector('.star').onclick = () => toggleFlag(im, 'star');
-    th.querySelector('.skip').onclick = () => toggleFlag(im, 'skip');
-    // 並べ替え（ドラッグ＆ドロップ）。セットのタブにドロップすると、そのセットに移動
-    th.addEventListener('dragstart', e => {
-      e.dataTransfer.setData(DRAG_TYPE, im.id);
-      e.dataTransfer.effectAllowed = 'move';
-      th.classList.add('dragging');
-    });
-    th.addEventListener('dragend', () => th.classList.remove('dragging'));
-    th.addEventListener('dragover', e => {
-      if (!e.dataTransfer.types.includes(DRAG_TYPE)) return;
-      e.preventDefault();
-      const r = th.getBoundingClientRect(), after = e.clientX > r.left + r.width / 2;
-      th.classList.toggle('drop-before', !after);
-      th.classList.toggle('drop-after', after);
-    });
-    th.addEventListener('dragleave', () => th.classList.remove('drop-before', 'drop-after'));
-    th.addEventListener('drop', e => {
-      if (!e.dataTransfer.types.includes(DRAG_TYPE)) return;
-      e.preventDefault(); e.stopPropagation();
-      const r = th.getBoundingClientRect(), after = e.clientX > r.left + r.width / 2;
-      moveImage(e.dataTransfer.getData(DRAG_TYPE), im.id, after);
-    });
-    strip.append(th);
-  });
-  strip.querySelector('.thumb.cur')?.scrollIntoView({ block: 'nearest', inline: 'nearest' });
-}
-function moveImage(fromId, toId, after) {
-  if (fromId === toId) { renderStrip(); return; }
-  const from = images.findIndex(im => im.id === fromId);
-  if (from < 0) return;
-  const [m] = images.splice(from, 1);
-  const to = images.findIndex(im => im.id === toId);
-  images.splice(to + (after ? 1 : 0), 0, m);
-  saveOrder(); renderStrip();
-}
-// 画像の一覧の開け閉め（状態は覚えておく）
-function applyStrip() {
-  const open = settings.stripOpen !== false;
-  $('stripWrap').classList.toggle('closed', !open);
-  $('stripToggle').textContent = t(open ? 'stripClose' : 'stripOpen');
-  $('stripToggle').setAttribute('aria-expanded', open);
-  $('stripToggle').title = t('stripTip');
-  if (curItem()) layoutFrame();     // 表示窓の高さが変わるので、画像を収め直す
-}
-$('stripToggle').onclick = () => { settings.stripOpen = settings.stripOpen === false; save(); applyStrip(); };
-// 画像の一覧の高さ：上の取っ手をドラッグで変える（ダブルクリックで元に戻す）
-const STRIP_MIN = 104;
-const stripMax = () => Math.max(STRIP_MIN, Math.round(innerHeight * 0.6));
-function applyStripHeight() {
-  const h = Math.min(stripMax(), Math.max(STRIP_MIN, settings.stripH || STRIP_MIN));
-  $('strip').style.setProperty('--strip-h', h + 'px');
-  if (curItem()) layoutFrame();
-}
-let stripDrag = null;
-$('stripResize').addEventListener('pointerdown', e => {
-  stripDrag = { y: e.clientY, h: $('strip').getBoundingClientRect().height };
-  $('stripResize').setPointerCapture(e.pointerId); $('stripResize').classList.add('dragging');
-});
-$('stripResize').addEventListener('pointermove', e => {
-  if (!stripDrag) return;
-  settings.stripH = Math.round(stripDrag.h + (stripDrag.y - e.clientY));   // 上へドラッグすると広がる
-  applyStripHeight();
-});
-const endStripDrag = () => {
-  if (!stripDrag) return;
-  stripDrag = null; $('stripResize').classList.remove('dragging');
-  settings.stripH = Math.round($('strip').getBoundingClientRect().height); save();
-};
-$('stripResize').addEventListener('pointerup', endStripDrag);
-$('stripResize').addEventListener('pointercancel', endStripDrag);
-$('stripResize').addEventListener('dblclick', () => { settings.stripH = STRIP_MIN; save(); applyStripHeight(); });
-addEventListener('resize', applyStripHeight);
-
-// 表示窓の上の道具：閉じると「‹ 道具」ボタンだけになる（状態は覚えておく）
-function applyToolbar() {
-  const open = settings.toolbarOpen !== false;
-  $('toolbar').classList.toggle('collapsed', !open);
-  $('tbToggle').textContent = t(open ? 'tbHide' : 'tbShow');
-  $('tbToggle').title = t(open ? 'tbHideTip' : 'tbShowTip');
-  if (typeof curItem === 'function' && curItem()) layoutFrame();   // バーの開け閉めで、画像の表示範囲が変わる
-}
-$('tbToggle').onclick = () => { settings.toolbarOpen = settings.toolbarOpen === false; save(); applyToolbar(); };
-$('starOnly').checked = settings.starOnly;
-$('starOnly').onchange = () => { settings.starOnly = $('starOnly').checked; save(); renderStrip(); render(); };
-
-// シャッフル：今のセットの画像だけを、元の位置の中で入れ替える
-$('shuffleBtn').onclick = () => {
-  const list = setImgs();
-  if (list.length < 2) return;
-  const slots = list.map(im => images.indexOf(im));
-  for (let i = list.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [list[i], list[j]] = [list[j], list[i]];
-  }
-  slots.forEach((pos, i) => { images[pos] = list[i]; });
-  // 止まっているときは1枚目から。練習中は今の画像のまま続ける
-  if (!active()) curId = list[0].id;
-  saveOrder(); renderStrip(); showImage(curId);
-};
-// 今のセットの画像をすべて削除（セット自体は残す）
-async function clearSet() {
-  const list = setImgs();
-  if (!list.length || !await uiDialog(t('clearAsk'), { okText: t('favDelYes'), danger: true })) return;
-  for (const im of list) { revokeItem(im); try { await idb.del(im.id); } catch (e) {} }
-  images = images.filter(im => im.setId !== settings.curSet);
-  curId = null;
-  saveOrder(); renderSets(); renderStrip(); showImage(null);
-}
-
-// 画像の追加：フォルダー／ファイル選択、URL、ドラッグ＆ドロップ、貼り付け
-document.querySelectorAll('[data-pick]').forEach(b =>
-  b.onclick = () => $(b.dataset.pick === 'dir' ? 'dirInput' : 'fileInput').click());
-$('dirInput').onchange = e => { addFiles(e.target.files, true); e.target.value = ''; };
-$('fileInput').onchange = e => { addFiles(e.target.files, false); e.target.value = ''; };
-const addFromUrlBox = () => {
-  const v = $('urlInput').value.trim();
-  if (!v) return;
-  if (!looksLikeUrl(v)) { toast(t('urlBad')); return; }
-  addUrls([v]); $('urlInput').value = '';
-};
-$('urlAdd').onclick = addFromUrlBox;
-$('urlInput').addEventListener('keydown', e => { if (e.key === 'Enter') addFromUrlBox(); });
-
-// フォルダーをドロップしたときは、中の画像をまとめて読み込む
-async function filesFromEntries(items) {
-  const out = [];
-  const walk = async entry => {
-    if (entry.isFile) {
-      out.push(await new Promise(res => entry.file(res, () => res(null))));
-    } else if (entry.isDirectory) {
-      const reader = entry.createReader();
-      let batch;
-      do {
-        batch = await new Promise(res => reader.readEntries(res, () => res([])));
-        for (const en of batch) await walk(en);
-      } while (batch.length);
-    }
-  };
-  for (const en of items) await walk(en);
-  return out.filter(Boolean);
-}
-const viewer = $('viewer');
-let dragDepth = 0;
-const externalDrag = e => !e.dataTransfer.types.includes(DRAG_TYPE);
-document.addEventListener('dragenter', e => {
-  if (!externalDrag(e)) return;
-  dragDepth++; viewer.classList.add('dragover');
-});
-document.addEventListener('dragleave', () => {
-  dragDepth = Math.max(0, dragDepth - 1);
-  if (!dragDepth) viewer.classList.remove('dragover');
-});
-document.addEventListener('dragover', e => { if (externalDrag(e)) e.preventDefault(); });
-document.addEventListener('drop', async e => {
-  dragDepth = 0; viewer.classList.remove('dragover');
-  if (!externalDrag(e)) return;
-  e.preventDefault();
-  const dt = e.dataTransfer;
-  const entries = [...dt.items || []].map(it => it.webkitGetAsEntry && it.webkitGetAsEntry()).filter(Boolean);
-  if (entries.some(en => en.isDirectory)) {
-    const files = await filesFromEntries(entries);
-    return addFiles(files, true);
-  }
-  if (dt.files && dt.files.length) return addFiles(dt.files, false);
-  // ほかのタブの画像をドラッグしたとき：HTML の <img src> か URL を使う
-  const html = dt.getData('text/html');
-  const src = html && new DOMParser().parseFromString(html, 'text/html').querySelector('img')?.getAttribute('src');
-  if (src && looksLikeUrl(src)) return addUrls([src]);
-  const uris = (dt.getData('text/uri-list') || dt.getData('text/plain') || '').split(/\r?\n/).filter(l => !l.startsWith('#'));
-  addUrls(uris);
-});
-document.addEventListener('paste', e => {
-  if (e.target.matches?.('input, textarea')) return;
-  const cd = e.clipboardData;
-  if (!cd) return;
-  const files = [...cd.files].filter(isImageFile);
-  if (files.length) { e.preventDefault(); addFiles(files, false); return; }
-  const text = cd.getData('text/plain');
-  if (text && looksLikeUrl(text)) { e.preventDefault(); addUrls(text.split(/\s+/)); }
-});
-
-// ---- バックアップ（書き出し・読み込み） ----
-const blobToDataUrl = blob => new Promise((res, rej) => {
-  const r = new FileReader(); r.onload = () => res(r.result); r.onerror = rej; r.readAsDataURL(blob);
-});
-// ファイルの大きさの目安（画像のデータは文字にすると約 4/3 倍になる）
-function backupSizeText() {
-  let bytes = 2000 + JSON.stringify(settings).length;
-  for (const im of images) bytes += 300 + (im.rec.blob ? Math.ceil(im.rec.blob.size * 4 / 3) : (im.url || '').length);
-  const mb = bytes / 1048576;
-  if (mb < 1) return Math.max(1, Math.round(bytes / 1024)) + ' KB';
-  return (mb < 10 ? mb.toFixed(1) : Math.round(mb)) + ' MB';
-}
-async function exportBackup() {
-  const files = images.filter(im => im.rec.blob).length, urls = images.length - files;
-  let msg = t('exportAsk', { n: images.length, f: files, u: urls, s: settings.sets.length, m: settings.favorites.length, size: backupSizeText() });
-  if (urls) msg += '\n' + t('exportUrlNote');
-  if (!await uiDialog(msg, { title: t('exportTitle'), okText: t('exportYes') })) return;
-  const btn = $('exportBtn');
-  btn.disabled = true; btn.textContent = t('exporting');
-  try {
-    const list = [];
-    for (const im of images) {
-      const e = { id: im.id, name: im.name, setId: im.setId, star: im.star, skip: im.skip };
-      if (im.rec.blob) e.data = await blobToDataUrl(im.rec.blob); else e.url = im.url;
-      list.push(e);
-    }
-    const { imageOrder, ...rest } = settings;
-    const data = { app: 'IntervaLoop for Artists', format: 1, exportedAt: new Date().toISOString(), settings: rest, images: list };
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(new Blob([JSON.stringify(data)], { type: 'application/json' }));
-    const d = new Date();   // ファイル名の日付は、その地域の日付にする（確認に出る日付と揃える）
-    a.download = `intervaloop-artists-backup-${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}.json`;
-    document.body.append(a); a.click(); a.remove();
-    setTimeout(() => URL.revokeObjectURL(a.href), 10000);
-  } finally {
-    btn.disabled = false; btn.textContent = t('exportBtn');
-  }
-}
-// ---- バックアップの中身の確認 ----
-// 他の人から受け取ったファイルを読み込むこともあるので、正しい形の値だけを受け取る。
-// 形がおかしい値や、知らない項目は捨てる（初期値のまま）
-const isStr = v => typeof v === 'string';
-const intIn = (v, min, max) => Number.isInteger(v) && v >= min && v <= max;
-const okId = v => isStr(v) && /^[\w-]{1,64}$/.test(v);
-const okColor = v => isStr(v) && /^#[0-9a-f]{6}$/i.test(v);
-const okName = v => isStr(v) ? [...v].slice(0, 20).join('') : '';
-// 画像のデータは「画像の data: URL」だけ（外部のURLを読み込ませないため）
-const okImageData = v => isStr(v) && /^data:image\/(png|jpe?g|gif|webp|bmp|avif|svg\+xml);base64,[A-Za-z0-9+/=]+$/i.test(v);
-// URLで追加した画像は http:// か https:// だけ
-const okImageUrl = v => isStr(v) && v.length <= 2048 && /^https?:\/\/[^\s"'<>]+$/i.test(v);
-const okSteps = v => Array.isArray(v) && v.length >= 1 && v.length <= 20 &&
-  v.every(st => st && intIn(st.work, 1, 359999) && intIn(st.count, 1, 999));
-function cleanImportedSettings(s) {
-  const out = {};
-  if (!s || typeof s !== 'object') return out;
-  if (okSteps(s.steps)) out.steps = s.steps.map(st => ({ work: st.work, count: st.count }));
-  const ints = { rest: [0, 359999], countdown: [0, 10], warnSec: [1, 30], volume: [0, 100], stripH: [40, 2000], seekAmount: [1, 999] };
-  for (const [k, [min, max]] of Object.entries(ints)) if (intIn(s[k], min, max)) out[k] = s[k];
-  for (const k of ['ringLock', 'se', 'warnSound', 'toolbarOpen', 'starOnly', 'stripOpen']) if (typeof s[k] === 'boolean') out[k] = s[k];
-  if (isStr(s.sound) && Object.hasOwn(SOUNDS, s.sound)) out.sound = s.sound;
-  if (['auto', 'light', 'dark'].includes(s.theme)) out.theme = s.theme;
-  if (isStr(s.lang) && Object.hasOwn(I18N, s.lang)) out.lang = s.lang;
-  if (['1', '60', '3600'].includes(s.seekUnit)) out.seekUnit = s.seekUnit;
-  if (['prev', 'next'].includes(s.restShow)) out.restShow = s.restShow;
-  if (s.colors && typeof s.colors === 'object') {
-    out.colors = { ...defaultColors };
-    for (const k of Object.keys(defaultColors)) if (okColor(s.colors[k])) out.colors[k] = s.colors[k];
-  }
-  if (s.view && typeof s.view === 'object') {
-    const v = s.view;
-    out.view = {
-      flip: v.flip === true, bw: v.bw === true, contrast: v.contrast === true,
-      grid: intIn(v.grid, 0, 10) ? v.grid : 0,
-      tone: ['none', 'sil', 'three'].includes(v.tone) ? v.tone : 'none',
-    };
-  }
-  if (Array.isArray(s.favorites)) {
-    out.favorites = s.favorites.filter(f => f && okSteps(f.steps)).slice(0, MAX_FAVS).map(f => ({
-      name: okName(f.name) || 'menu', steps: f.steps.map(st => ({ work: st.work, count: st.count })),
-      rest: intIn(f.rest, 0, 359999) ? f.rest : 0,
-    }));
-  }
-  if (Array.isArray(s.sets)) {
-    const sets = s.sets.filter(x => x && okId(x.id)).slice(0, 50).map(x => ({ id: x.id, name: okName(x.name) || 'Set' }));
-    if (sets.length) {
-      out.sets = sets;
-      if (sets.some(x => x.id === s.curSet)) out.curSet = s.curSet;
-    }
-  }
-  return out;
-}
-
-async function importBackup(file) {
-  let data = null;
-  try { data = JSON.parse(await file.text()); } catch (e) {}
-  if (!data || data.app !== 'IntervaLoop for Artists' || !Array.isArray(data.images) || typeof data.settings !== 'object') {
-    toast(t('importBad'), 6000); return;
-  }
-  const when = isStr(data.exportedAt) && /^\d{4}-\d{2}-\d{2}/.test(data.exportedAt) ? new Date(data.exportedAt) : null;
-  const date = when && !isNaN(when) ? t('importDate', { d: `${when.getFullYear()}-${String(when.getMonth() + 1).padStart(2, '0')}-${String(when.getDate()).padStart(2, '0')}` }) : '';
-  const ask = t('importAsk', { cur: images.length, n: Math.min(data.images.length, MAX_IMAGES), date });
-  if (!await uiDialog(ask, { title: t('importTitle'), note: t('importNote'), okText: t('importYes'), danger: true })) return;
-  const btn = $('importBtn');
-  btn.disabled = true; btn.textContent = t('importing');
-  const list = data.images.slice(0, MAX_IMAGES);
-  const ids = [];
-  let failed = 0, rejected = 0;
-  try { await idb.clear(); } catch (e) {}
-  for (const e of list) {
-    if (!e || typeof e !== 'object') continue;
-    const rec = { id: okId(e.id) ? e.id : newId(), name: isStr(e.name) ? e.name.slice(0, 200) : '',
-                  setId: okId(e.setId) ? e.setId : undefined, star: e.star === true, skip: e.skip === true };
-    if (okImageData(e.data)) {
-      try { rec.blob = await (await fetch(e.data)).blob(); } catch (err) { failed++; continue; }
-      rec.thumb = await makeThumb(rec.blob);
-    } else if (okImageUrl(e.url)) rec.url = e.url;
-    else { rejected++; continue; }               // 形がおかしい画像は読み込まない
-    try { await idb.put(rec); ids.push(rec.id); } catch (err) { failed++; }
-  }
-  settings = { ...defaults, ...cleanImportedSettings(data.settings), imageOrder: ids };
-  save();
-  // 読み込み直したあとに表示する（ページを読み込み直すと、お知らせが消えてしまうため）
-  const notes = [];
-  if (rejected) notes.push(t('importRejected', { n: rejected }));
-  if (failed) notes.push(t('saveFail', { n: failed }));
-  if (notes.length) { try { sessionStorage.setItem(NOTICE_KEY, notes.join('\n')); } catch (e) {} }
-  location.reload();    // 読み込んだ設定で、最初から表示し直す
-}
-const NOTICE_KEY = 'intervaLoopArtistsNotice';
-try {
-  const notice = sessionStorage.getItem(NOTICE_KEY);
-  if (notice) { sessionStorage.removeItem(NOTICE_KEY); setTimeout(() => toast(notice, 8000), 300); }
-} catch (e) {}
-$('exportBtn').onclick = () => exportBackup();
-$('importBtn').onclick = () => $('importInput').click();
-$('importInput').onchange = e => { const f = e.target.files[0]; e.target.value = ''; if (f) importBackup(f); };
-
-// ---- 表示窓（拡大・縮小・移動・反転・白黒・シルエット・3階調・グリッド） ----
-const frame = $('frame'), img = $('img');
-const view = { z: 1, x: 0, y: 0 };
-function showImage(id) {
-  const im = images.find(x => x.id === id && x.setId === settings.curSet);
-  viewer.classList.toggle('no-image', !im);
-  if (!im) {
-    curId = null;
-    img.removeAttribute('src'); frame.style.display = 'none';
-    $('empty').classList.remove('hidden');
-    renderStripCur();
-    return;
-  }
-  curId = im.id;
-  $('empty').classList.add('hidden');
-  frame.style.display = '';
-  view.z = 1; view.x = 0; view.y = 0;
-  img.onload = () => layoutFrame();
-  img.src = im.src;
-  if (img.complete) layoutFrame();
-  renderStripCur();
-}
-function renderStripCur() {
-  document.querySelectorAll('.thumb').forEach(th => th.classList.toggle('cur', th.dataset.id === curId));
-  document.querySelector('.thumb.cur')?.scrollIntoView({ block: 'nearest', inline: 'nearest' });
-}
-// 画像だけを前後に送る（時間はそのまま）。練習中は、使わない画像を飛ばす
-function navImage(dir) {
-  const n = stepImage(dir, active());
-  if (!n) return;
-  showImage(n.id);
-  if (active() && phase === 'work' && sessionLog.length) sessionLog[sessionLog.length - 1] = n.id;
-  render();
-}
-$('prevImg').onclick = () => navImage(-1);
-$('nextImg').onclick = () => navImage(1);
-// 画像を表示窓に収まる大きさにして中央に置く
-// 道具のバーが開いているときは、その下の範囲（バーの下端から）を画像の表示に使う。
-// 縦に長い画像の上の部分が、バーに隠れないようにするため
-function toolbarSpace() {
-  const tb = $('toolbar');
-  if (settings.toolbarOpen === false || !tb || !tb.offsetParent) return 0;
-  return tb.offsetTop + tb.offsetHeight + 6;
-}
-function layoutFrame() {
-  const vw = viewer.clientWidth, vh = viewer.clientHeight;
-  const top = Math.min(toolbarSpace(), vh * 0.4), ah = vh - top;
-  const iw = img.naturalWidth || 1, ih = img.naturalHeight || 1;
-  const s = Math.min(vw / iw, ah / ih);
-  const w = iw * s, h = ih * s;
-  frame.style.width = w + 'px'; frame.style.height = h + 'px';
-  frame.style.left = (vw - w) / 2 + 'px'; frame.style.top = top + (ah - h) / 2 + 'px';
-  applyView();
-}
-function applyView() {
-  frame.style.transform = `translate(${view.x}px, ${view.y}px) scale(${view.z})`;
-  $('zoomVal').textContent = Math.round(view.z * 100) + '%';
-  viewer.classList.toggle('zoomed', view.z > 1);
-  const v = settings.view;
-  img.classList.toggle('flip', v.flip);
-  const f = [];
-  if (v.bw) f.push('grayscale(1)');
-  if (v.contrast) f.push('contrast(1.8)');
-  if (v.tone === 'sil') f.push('url(#fSil)');
-  if (v.tone === 'three') f.push('url(#fThree)');
-  img.style.filter = f.join(' ');
-  $('gridOv').classList.toggle('on', +v.grid > 0);
-  $('gridOv').style.setProperty('--n', Math.max(1, +v.grid));
-  $('flipBtn').classList.toggle('on', v.flip);
-  $('bwBtn').classList.toggle('on', v.bw);
-  $('contrastBtn').classList.toggle('on', v.contrast);
-  $('silBtn').classList.toggle('on', v.tone === 'sil');
-  $('threeBtn').classList.toggle('on', v.tone === 'three');
-  $('gridSel').value = String(v.grid);
-}
-// 拡大・縮小：指定した位置（なければ中央）を中心にする
-function zoomBy(f, px, py) {
-  const r = viewer.getBoundingClientRect();
-  const cx = r.width / 2 + view.x, cy = r.height / 2 + view.y;
-  const dx = (px ?? r.width / 2) - cx, dy = (py ?? r.height / 2) - cy;
-  const nz = Math.min(8, Math.max(1, view.z * f));
-  const k = nz / view.z;
-  view.x += dx * (1 - k); view.y += dy * (1 - k);
-  view.z = nz;
-  if (view.z === 1) { view.x = 0; view.y = 0; }
-  applyView();
-}
-const setView = (key, val) => { settings.view[key] = val; save(); applyView(); };
-$('flipBtn').onclick = () => setView('flip', !settings.view.flip);
-$('bwBtn').onclick = () => setView('bw', !settings.view.bw);
-$('contrastBtn').onclick = () => setView('contrast', !settings.view.contrast);
-// シルエットと3階調は、どちらか一方だけ
-$('silBtn').onclick = () => setView('tone', settings.view.tone === 'sil' ? 'none' : 'sil');
-$('threeBtn').onclick = () => setView('tone', settings.view.tone === 'three' ? 'none' : 'three');
-$('gridSel').onchange = () => setView('grid', +$('gridSel').value);
-const cycleGrid = () => { const g = [0, 2, 3, 4]; setView('grid', g[(g.indexOf(+settings.view.grid) + 1) % g.length]); };
-$('zoomIn').onclick = () => zoomBy(1.25);
-$('zoomOut').onclick = () => zoomBy(0.8);
-$('zoomFit').onclick = () => { view.z = 1; view.x = 0; view.y = 0; applyView(); };
-viewer.addEventListener('wheel', e => {
-  if (!curItem() || e.target.closest('.review')) return;
-  e.preventDefault();
-  const r = viewer.getBoundingClientRect();
-  zoomBy(e.deltaY < 0 ? 1.15 : 1 / 1.15, e.clientX - r.left, e.clientY - r.top);
-}, { passive: false });
-// 拡大しているときは、ドラッグで画像を動かせる
-let pan = null;
-viewer.addEventListener('pointerdown', e => {
-  if (view.z <= 1 || e.target.closest('.toolbar, button, .review')) return;
-  pan = { x: e.clientX - view.x, y: e.clientY - view.y };
-  viewer.setPointerCapture(e.pointerId); viewer.classList.add('panning');
-});
-viewer.addEventListener('pointermove', e => {
-  if (!pan) return;
-  view.x = e.clientX - pan.x; view.y = e.clientY - pan.y; applyView();
-});
-const endPan = () => { pan = null; viewer.classList.remove('panning'); };
-viewer.addEventListener('pointerup', endPan);
-viewer.addEventListener('pointercancel', endPan);
-const toggleFullscreen = () => {
-  if (document.fullscreenElement) document.exitFullscreen();
-  else viewer.requestFullscreen?.();
-};
-$('fsBtn').onclick = toggleFullscreen;
-document.addEventListener('fullscreenchange', () => setTimeout(layoutFrame, 50));
-addEventListener('resize', () => { if (curItem()) layoutFrame(); });
-
 // ---- タイマー本体 ----
 let state = 'idle';       // idle / running / paused / done
-let phase = 'work';       // ready（開始前のカウントダウン）/ work（ポーズ）/ rest（チェンジ）
-let k = 0;                // 何番目のポーズか（0から数える）
-let plan = [];            // 開始時に決めた、ポーズ時間の一覧（秒）
+let phase = 'work';       // ready（開始前のカウントダウン）/ work / rest
+let round = 1;
 let phaseLen = 0;         // 今のフェーズの長さ（ミリ秒）
 let endAt = 0;            // 終わる時刻（running中）
 let remain = 0;           // 残り（paused中）
 let timerId = null;
 let dragging = false;
 let lastBeep = null;      // 最後に合図を鳴らした「残り秒数」
-let sessionLog = [];      // 今回の練習で描いた画像の id（振り返り用）
-let reviewHidden = false; // 振り返りを閉じて、画像を見ているところ
 
 const fmt = ms => {
   const t = Math.ceil(ms / 1000);
@@ -2210,14 +955,13 @@ function setLeft(ms) {
   ms = Math.min(phaseLen, Math.max(0, ms));
   if (state === 'running') endAt = Date.now() + ms; else remain = ms;
 }
-// 残り数秒の合図を出すか（短いポーズでは出さない）
+// 残り数秒の合図を出すか（短いワークタイムでは出さない）
 const warnable = () => phase === 'work' && phaseLen >= warnSec() * 2000;
 
 function render() {
   let left, total, label, color;
-  const w = active() || state === 'done' ? plan : works();
   if (state === 'idle') {
-    left = total = (w[0] || 0) * 1000; label = t('ready'); color = 'var(--work)';
+    left = total = settings.work * 1000; label = t('ready'); color = 'var(--work)';
   } else if (state === 'done') {
     left = 0; total = 1; label = t('done'); color = 'var(--done)';
   } else {
@@ -2225,7 +969,7 @@ function render() {
     total = phaseLen;
     label = t(phase === 'work' ? 'phaseWork' : phase === 'rest' ? 'phaseRest' : 'getReady') + (state === 'paused' ? t('paused') : '');
     color = phase === 'work' ? 'var(--work)' : phase === 'rest' ? 'var(--rest)' : 'var(--sub)';
-    // 残り5秒になったら、終了の色にして知らせる
+    // 残り数秒になったら、終了の色にして知らせる
     if (warnable() && left <= warnSec() * 1000) color = 'var(--done)';
   }
   const elapsed = total > 0 ? 1 - left / total : 1;
@@ -2236,51 +980,24 @@ function render() {
   knob.setAttribute('cx', 100 + R * Math.cos(a));
   knob.setAttribute('cy', 100 + R * Math.sin(a));
   knob.style.stroke = color;
-  // 丸いバーの中は幅が狭いので、「（一時停止）」は2行目に出す
-  $('phase').textContent = state === 'paused' ? label.replace(t('paused'), '\n' + t('paused').trim()) : label;
+  $('phase').textContent = label;
   $('phase').style.color = color;
-  $('time').textContent = fmt(left);
-  let roundText = '';
-  if (state !== 'idle') {
-    roundText = t('roundOf', { n: Math.min(k + 1, w.length), total: w.length });
-    // 2行目：今のポーズの設定時間。チェンジ中・開始前は、次のポーズの時間
-    if (active() && phase === 'work') roundText += '\n' + t('poseLen', { time: short(plan[k]) });
-    else if (active() && phase === 'ready') roundText += '\n' + t('nextLen', { time: short(plan[0]) });
-    else if (active() && plan[k + 1]) roundText += '\n' + t('nextLen', { time: short(plan[k + 1]) });
-  }
-  $('round').innerText = roundText;
+  // カウントダウン中は「3、2、1」と数字だけを出す
+  $('time').textContent = active() && phase === 'ready' ? Math.max(1, Math.ceil(left / 1000)) : fmt(left);
+  $('round').textContent = state === 'idle' ? '' :
+    settings.repeat > 0 ? t('roundOf', { n: Math.min(round, settings.repeat), total: settings.repeat })
+                        : t('roundN', { n: round });
   document.title = active() ? `${fmt(left)} ${label}` : t('appTitle');
 
   $('startBtn').disabled = state === 'running';
   $('startBtn').textContent = t(state === 'paused' ? 'resume' : 'start');
   $('pauseBtn').disabled = state !== 'running';
-  $('menuSet').disabled = active();
+  $('panel').classList.toggle('locked', active());
+  // 計測中は、ワークタイム・インターバル・回数・カウントダウンを変えられないようにする
+  $('panel').querySelectorAll('.hms input').forEach(inp => inp.disabled = active());
   lockFavs();
-  document.querySelectorAll('.set-tab, .set-act').forEach(b => b.disabled = active());
   $('subControls').classList.toggle('hidden', !active());
   ring.classList.toggle('active', active());
-
-  // 表示窓の上の表示（カウントダウン・チェンジ・終了・全画面の時間）
-  $('readyOv').classList.toggle('on', active() && phase === 'ready');
-  if (active() && phase === 'ready') $('readyCount').textContent = Math.max(1, Math.ceil(left / 1000));
-  const resting = active() && phase === 'rest';
-  $('restOv').classList.toggle('on', resting);
-  $('restOv').classList.toggle('light', resting && restAdvanced);
-  if (resting) {
-    $('restTime').textContent = fmt(left);
-    if (restAdvanced) {
-      const c = curItem();   // もう次の画像を出しているので、その画像の番号を出す
-      $('restSub').textContent = c ? t('nextPose', { n: setImgs().indexOf(c) + 1 }) : '';
-    } else {
-      const n = stepImage(1, true);
-      $('restSub').textContent = n ? t('nextImage', { n: setImgs().indexOf(n) + 1 }) : '';
-    }
-  }
-  $('doneOv').classList.toggle('on', state === 'done' && !reviewHidden);
-  viewer.classList.toggle('show-review-btn', state === 'done' && reviewHidden);
-  $('hudDot').style.background = color;
-  $('hudTime').textContent = fmt(left);
-  $('hudSub').innerText = roundText.replace('\n', ' ・ ');
   updateLogo(elapsed);
 }
 
@@ -2291,11 +1008,11 @@ function buildLogo() {
   const fs = 48, base = 48, ns = 'http://www.w3.org/2000/svg';
   const b = text.getBBox();
   if (!b.width) return;                     // 表示されていないときは作らない
-  // 「FOR ARTISTS」を文字ロゴの中央の下に置く（字間の分だけ右にずらして中央に見せる）
-  svg.querySelector('.logo-sub').setAttribute('x', b.x + b.width / 2 + 1.5);
-  const h = 86 - b.y;                       // 文字ロゴの上端から下の文字まで
+  // 「TIMER」を文字ロゴの中央の下に置く（字間の分だけ右にずらして中央に見せる）
+  svg.querySelector('.logo-sub').setAttribute('x', b.x + b.width / 2 + 2.25);
+  const h = 86 - b.y;                       // 文字ロゴの上端から「TIMER」の下まで
   svg.setAttribute('viewBox', `${b.x - 2} ${b.y} ${b.width + 4} ${h}`);
-  const scale = 36 / b.height;              // 文字ロゴの高さを36pxにする
+  const scale = 44 / b.height;              // 文字ロゴの高さを44pxにする
   svg.style.height = (h * scale) + 'px';
   svg.style.width = ((b.width + 4) * scale) + 'px';
   g.innerHTML = '';
@@ -2303,15 +1020,15 @@ function buildLogo() {
   ['var(--work)', 'var(--rest)'].forEach((color, i) => {
     const e = text.getExtentOfChar(8 + i);   // 「IntervaL」の次の o、o
     const cx = e.x + e.width / 2, cy = base - fs * 0.26, r = e.width * 0.36, c = 2 * Math.PI * r;
-    const mk = cls => {
+    const ring = cls => {
       const el = document.createElementNS(ns, 'circle');
       el.setAttribute('cx', cx); el.setAttribute('cy', cy); el.setAttribute('r', r);
       el.setAttribute('class', cls); el.setAttribute('stroke-width', 5.2);   // ロゴの画像と同じ太さ
       g.appendChild(el);
       return el;
     };
-    mk('logo-track');
-    const arc = mk('logo-arc');
+    ring('logo-track');
+    const arc = ring('logo-arc');
     arc.style.stroke = color;
     arc.style.strokeDasharray = `${c} ${c}`;
     arc.setAttribute('transform', `rotate(-90 ${cx} ${cy})`);
@@ -2338,35 +1055,29 @@ function updateLogo(elapsed) {
   if (linked) left = phase === 'work' ? [1 - elapsed, 1] : phase === 'rest' ? [1, 1 - elapsed] : [1, 1];
   else if (state === 'done') left = [1, 1];
   logoRings.forEach(({ arc, c }, i) => arc.style.strokeDashoffset = -c * (1 - left[i]));
-  // 残り秒数になったら、ポーズの輪も丸いバーと同じ色にする（ロゴが動いているときだけ）
+  // 残り秒数になったら、ワークタイムの輪も丸いバーと同じ色にする（ロゴが動いているときだけ）
   const warnNow = linked && warnable() && getLeft() <= warnSec() * 1000;
   logoRings[0].arc.style.stroke = warnNow ? 'var(--done)' : 'var(--work)';
 }
 
 function beginPhase(p) {
-  if (p !== 'rest') restAdvanced = false;
   phase = p;
-  phaseLen = (p === 'work' ? plan[k] : p === 'rest' ? settings.rest : settings.countdown) * 1000;
+  phaseLen = (p === 'work' ? settings.work : p === 'rest' ? settings.rest : settings.countdown) * 1000;
   lastBeep = null;
   if (state === 'running') endAt = Date.now() + phaseLen; else remain = phaseLen;
 }
-// ポーズが始まるときに、描く画像を記録する（振り返り用）
-const logPose = () => { if (curId) sessionLog.push(curId); };
-const advanceImage = () => { const n = stepImage(1, true); if (n) showImage(n.id); };
-// チェンジ中に次の画像を見せるか。見せたときは、チェンジの終わりで画像を進めないよう覚えておく
-let restAdvanced = false;
-const showNextInRest = () => (restAdvanced = settings.restShow === 'next');
 
-// 今のフェーズを終えて次へ進む。ポーズが始まるたびに次の画像へ
+// 今のフェーズを終えて次へ進む
 function nextPhase() {
   if (phase === 'ready') {
-    beginPhase('work'); logPose(); se('start');
+    beginPhase('work'); se('start');
   } else if (phase === 'work') {
-    if (k >= plan.length - 1) { finish(); return; }
-    if (settings.rest > 0) { se('end'); beginPhase('rest'); if (showNextInRest()) advanceImage(); }
-    else { se('switch'); k++; advanceImage(); beginPhase('work'); logPose(); }   // チェンジなしは区切り音1回だけ
+    const last = settings.repeat > 0 && round >= settings.repeat;
+    if (last) { finish(); return; }
+    if (settings.rest > 0) { se('end'); beginPhase('rest'); }
+    else { se('switch'); round++; beginPhase('work'); }   // インターバルなしは区切り音1回だけ
   } else {
-    k++; if (!restAdvanced) advanceImage(); beginPhase('work'); logPose(); se('start');
+    round++; beginPhase('work'); se('start');
   }
   render();
 }
@@ -2376,38 +1087,15 @@ function tick() {
   const left = endAt - Date.now();
   if (left <= 0) { nextPhase(); return; }
   const s = Math.ceil(left / 1000);
-  // カウントダウン中は毎秒、ポーズの残り5秒は毎秒、短い音で知らせる
+  // カウントダウン中は毎秒、ワークタイムの残り数秒も毎秒、短い音で知らせる
   if (phase === 'ready' && s !== lastBeep) { lastBeep = s; beep(880); }
   if (warnable() && s <= warnSec() && s !== lastBeep) { lastBeep = s; if (settings.warnSound) beep(1320); }
   render();
 }
 
 function finish() {
-  state = 'done'; clearInterval(timerId); se('finish');
-  buildReview(); reviewHidden = false;
-  render();
+  state = 'done'; clearInterval(timerId); se('finish'); render();
 }
-// 振り返り：今回描いた画像を順番に並べる
-function buildReview() {
-  $('doneSub').textContent = t('doneSub', { n: plan.length });
-  const grid = $('reviewGrid');
-  grid.innerHTML = '';
-  sessionLog.forEach((id, i) => {
-    const im = images.find(x => x.id === id);
-    if (!im) return;
-    const b = document.createElement('button');
-    b.innerHTML = `<img alt=""><span class="rn">${i + 1}</span>`;
-    b.querySelector('img').src = im.thumbUrl || im.src;
-    b.title = im.name;
-    b.onclick = () => {
-      if (im.setId !== settings.curSet) switchSet(im.setId);
-      showImage(im.id); reviewHidden = true; render();
-    };
-    grid.append(b);
-  });
-}
-$('reviewClose').onclick = () => { reviewHidden = true; render(); };
-$('reviewOpen').onclick = () => { reviewHidden = false; render(); };
 
 $('startBtn').onclick = () => {
   if (state === 'paused') {
@@ -2415,14 +1103,11 @@ $('startBtn').onclick = () => {
     state = 'running';
     if (phase !== 'ready') se('start');
   } else {
-    readSteps();
-    plan = works();
-    if (!plan.length || settings.steps.some(st => st.work <= 0 || st.count <= 0)) { toast(t('needWork')); return; }
-    k = 0; sessionLog = []; reviewHidden = false; state = 'running';
-    const first = firstUsable();
-    if (first) showImage(first.id);
+    readSettings();
+    if (settings.work <= 0) { alert(t('needWork')); return; }
+    round = 1; state = 'running';
     if (settings.countdown > 0) { beginPhase('ready'); ensureCtx(); }
-    else { beginPhase('work'); logPose(); se('start'); }
+    else { beginPhase('work'); se('start'); }
   }
   clearInterval(timerId); timerId = setInterval(tick, 100);
   tick();
@@ -2433,7 +1118,7 @@ $('pauseBtn').onclick = () => {
   state = 'paused'; clearInterval(timerId); render();
 };
 $('resetBtn').onclick = () => {
-  state = 'idle'; clearInterval(timerId); k = 0; render();
+  state = 'idle'; clearInterval(timerId); round = 1; render();
 };
 
 // ---- 時間送り・巻き戻し・スキップ ----
@@ -2527,16 +1212,17 @@ $('helpBtn').onclick = () => toggleHelp(true);
 $('helpClose').onclick = () => toggleHelp(false);
 $('help').addEventListener('click', e => { if (e.target === $('help')) toggleHelp(false); });
 
-// 一時停止中などは再描画が止まるので、スクロールや画面サイズの変更でロゴを更新する
-let logoFrame = 0;
-const refreshLogo = () => {
-  if (logoFrame || !active()) return;
-  logoFrame = requestAnimationFrame(() => { logoFrame = 0; render(); });
+// ---- 全画面表示（丸いバーと操作ボタンだけを大きく出す） ----
+const toggleFullscreen = () => {
+  if (document.fullscreenElement) document.exitFullscreen();
+  else $('stage').requestFullscreen?.();
 };
-addEventListener('scroll', refreshLogo, { passive: true });
-$('side').addEventListener('scroll', refreshLogo, { passive: true });
-addEventListener('resize', refreshLogo);
+$('fsBtn').onclick = toggleFullscreen;
+$('fsExit').onclick = toggleFullscreen;
+// 全画面に対応していないブラウザ（iPhoneのSafariなど）では、ボタンを出さない
+if (!document.fullscreenEnabled) $('fsBtn').hidden = true;
 
+// ---- キー操作 ----
 // ---- 数字の入力欄をそろえる ----
 // 入力中：欄の最大値の桁数（99 なら2桁、999 なら3桁）より多くは入らないようにする。
 // 欄から離れたとき：空欄は 0（最小値が1の欄は1）に、先頭の 0 は消し、分・秒が60以上なら繰り上げる
@@ -2604,10 +1290,18 @@ document.addEventListener('focusout', e => {
   if (info) setTimeout(() => hideTip(info));
 });
 
-// ---- キー操作 ----
+// 一時停止中などは再描画が止まるので、スクロールや画面サイズの変更でロゴを更新する
+let logoFrame = 0;
+const refreshLogo = () => {
+  if (logoFrame || !active()) return;
+  logoFrame = requestAnimationFrame(() => { logoFrame = 0; render(); });
+};
+addEventListener('scroll', refreshLogo, { passive: true });
+addEventListener('resize', refreshLogo);
+
 document.addEventListener('keydown', e => {
   if (e.ctrlKey || e.altKey || e.metaKey) return;          // ブラウザのショートカットは邪魔しない
-  if (e.target.matches?.('input[type=number], input[type=text], input[type=range], select')) return;   // 入力中は無視
+  if (e.target.matches('input[type=number], input[type=text], input[type=range], select')) return;   // 入力中は無視
   const helpOpen = !$('help').classList.contains('hidden');
   if (e.key === 'Escape' || (helpOpen && e.key === '?')) { toggleHelp(false); return; }
   if (helpOpen) return;
@@ -2620,38 +1314,12 @@ document.addEventListener('keydown', e => {
     $('restartBtn').click();
   } else if (e.code === 'End' || (e.code === 'KeyS' && !e.shiftKey)) {
     $('skipBtn').click();
-  } else if (e.code === 'BracketLeft') {
-    navImage(-1);
-  } else if (e.code === 'BracketRight') {
-    navImage(1);
   } else if (e.code === 'KeyR' && e.shiftKey) {
     $('resetBtn').click();
   } else if (e.code === 'KeyM' && !e.shiftKey) {
-    $('seOn').checked = !$('seOn').checked; readSound();
-  } else if (e.code === 'KeyH') {
-    $('flipBtn').click();
-  } else if (e.code === 'KeyB') {
-    $('bwBtn').click();
-  } else if (e.code === 'KeyC') {
-    $('contrastBtn').click();
-  } else if (e.code === 'KeyT') {
-    $('threeBtn').click();
-  } else if (e.code === 'KeyK') {
-    $('silBtn').click();
-  } else if (e.code === 'KeyG') {
-    cycleGrid();
-  } else if (e.code === 'KeyF') {
+    $('seOn').checked = !$('seOn').checked; readSettings();
+  } else if (e.code === 'KeyF' && !e.shiftKey) {
     toggleFullscreen();
-  } else if (e.code === 'KeyL') {
-    $('stripToggle').click();
-  } else if (e.code === 'KeyV') {
-    $('tbToggle').click();
-  } else if (e.key === '+' || e.code === 'NumpadAdd' || (e.key === ';' && e.shiftKey)) {
-    zoomBy(1.25);
-  } else if (e.key === '-' || e.code === 'NumpadSubtract') {
-    zoomBy(0.8);
-  } else if (e.key === '0' || e.code === 'Numpad0') {
-    $('zoomFit').click();
   } else if (/^[1-9]$/.test(e.key)) {
     loadFav(+e.key - 1);
   } else if (e.key === '?') {
@@ -2664,24 +1332,15 @@ document.addEventListener('keydown', e => {
 
 $('langSel').addEventListener('change', () => {
   lang = settings.lang = $('langSel').value;
-  save(); applyLang(); renderSteps(); renderFavs(); renderSets(); renderStrip(); applyStrip(); applyToolbar(); updateWarnInfo(); buildLogo(); applyRingLock(); render();
-  if (state === 'done') buildReview();
+  save(); applyLang(); renderFavs(); buildLogo(); applyRingLock(); render();
 });
 
 applyLang();
-renderSteps();
 renderFavs();
-renderSets();
 buildLogo();
 // 文字の読み込みが終わったら、輪の位置を測り直す（読み込み前の文字の幅で測るとずれるため）
 document.fonts?.ready.then(() => { buildLogo(); render(); });
-applyView();
-applyStrip();
-applyStripHeight();
-applyToolbar();
-updateWarnInfo();
 render();
-loadImages();
 </script>
 </body>
 </html>
