@@ -475,7 +475,7 @@ const I18N = {
   ja: {
     appTitle: 'IntervaLoop Timer｜無料のインターバルタイマー',
     start: '開始', resume: '再開', pause: '一時停止', reset: 'リセット', resetTip: 'リセット（Shift+R）',
-    restart: '先頭へ', restartTip: '今のワークタイム／インターバルの最初に戻る（Home）',
+    restart: '先頭へ', restartTip: '今のワークタイム／インターバルの最初に戻る。2秒以内にもう一度押すと、1つ前の区間の最初に戻る（Home）',
     backTip: '戻す（←）', fwdTip: '進める（→）',
     skip: 'スキップ', skipTip: '今のワークタイム／インターバルを飛ばす（End / S）',
     unitS: '秒', unitM: '分', unitH: '時', h: '時', m: '分', s: '秒',
@@ -512,6 +512,7 @@ const I18N = {
       ['Space', '開始／一時停止'],
       ['← / →', '設定した時間だけ戻す／進める'],
       ['Home', '今のワークタイム／インターバルの先頭へ'],
+      ['Home ×2', '1つ前の区間の先頭へ（2秒以内に2回）'],
       ['End / S', '今のワークタイム／インターバルをスキップ'],
       ['Shift + R', 'リセット'],
       ['M', '音のオン／オフ'],
@@ -523,7 +524,7 @@ const I18N = {
   en: {
     appTitle: "IntervaLoop Timer – Free Interval Timer",
     start: 'Start', resume: 'Resume', pause: 'Pause', reset: 'Reset', resetTip: 'Reset (Shift+R)',
-    restart: 'Restart', restartTip: 'Back to the start of this work time / interval (Home)',
+    restart: 'Restart', restartTip: 'Back to the start of this work time / interval. Press again within 2 s to go back to the start of the previous one (Home)',
     backTip: 'Back (←)', fwdTip: 'Forward (→)',
     skip: 'Skip', skipTip: 'Skip this work time / interval (End / S)',
     unitS: 'sec', unitM: 'min', unitH: 'hr', h: 'h', m: 'm', s: 's',
@@ -560,6 +561,7 @@ const I18N = {
       ['Space', 'Start / pause'],
       ['← / →', 'Back / forward by the set time'],
       ['Home', 'Restart the current work time / interval'],
+      ['Home ×2', 'Start of the previous one (twice in 2 s)'],
       ['End / S', 'Skip the current work time / interval'],
       ['Shift + R', 'Reset'],
       ['M', 'Sound on / off'],
@@ -1139,8 +1141,28 @@ const seekStep = () => Math.max(1, parseInt($('seekAmount').value, 10) || 1) * +
   save();
 }));
 document.querySelectorAll('[data-dir]').forEach(b => b.onclick = () => seek(+b.dataset.dir * seekStep()));
-$('restartBtn').onclick = () => { if (active()) { setLeft(phaseLen); lastBeep = null; render(); } };
+// 先頭へ：今の区間の最初に戻る。押してから2秒以内にもう一度押すと、1つ前の区間の最初に戻る
+// （続けて押した分だけさかのぼれる。間違えてスキップしたときに戻れるように）
+const BACK_WINDOW = 2000;
+let lastRestartAt = -Infinity;   // 前に「先頭へ」を押した時刻（実際の時計で数える）
+$('restartBtn').onclick = () => {
+  if (!active()) return;
+  const now = performance.now(), again = now - lastRestartAt < BACK_WINDOW;
+  lastRestartAt = now;
+  if (again && goBack()) return;
+  setLeft(phaseLen); lastBeep = null; render();
+};
 $('skipBtn').onclick = () => { if (active()) nextPhase(); };
+// 1つ前の区間の先頭に戻る。最初のワークタイム（と開始前のカウントダウン）より前には戻らない
+function goBack() {
+  let p, r = round;
+  if (phase === 'rest') p = 'work';
+  else if (phase === 'work' && round > 1) { r = round - 1; p = settings.rest > 0 ? 'rest' : 'work'; }
+  else return false;
+  round = r; beginPhase(p);
+  render();
+  return true;
+}
 
 // バーをクリック／ドラッグして位置を決める（秒単位）
 let lastFrac = 0;
